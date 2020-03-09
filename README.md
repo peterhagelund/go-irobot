@@ -49,7 +49,6 @@ func main() {
 		panic(err)
     }
     // TODO - more example code.
-	port.Write([]byte("Hello World via serial\n"))
 }
 ```
 
