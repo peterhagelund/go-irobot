@@ -26,8 +26,8 @@ func (packet *Packet18) Size() int {
 
 // Extract extracts the information in the specified data starting at the specified offset.
 func (packet *Packet18) Extract(data []byte, offset int) error {
-	if offset >= len(data) {
-		return errors.New("offset exceeds data length")
+	if offset+packet.Size() > len(data) {
+		return errors.New("packet exceeds data length")
 	}
 	bits := data[offset]
 	packet.Clean = bits&0b00000001 != 0b00000000

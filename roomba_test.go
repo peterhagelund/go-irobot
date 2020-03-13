@@ -21,8 +21,7 @@ func TestStart(t *testing.T) {
 	roomba, _ := NewRoomba(conn)
 	data := make([]byte, 1)
 	go func() {
-		err := roomba.Start()
-		if err != nil {
+		if err := roomba.Start(); err != nil {
 			t.Error(err)
 		}
 	}()
@@ -43,8 +42,7 @@ func TestSafe(t *testing.T) {
 	roomba, _ := NewRoomba(conn)
 	data := make([]byte, 1)
 	go func() {
-		err := roomba.Safe()
-		if err != nil {
+		if err := roomba.Safe(); err != nil {
 			t.Error(err)
 		}
 	}()
@@ -65,8 +63,7 @@ func TestFull(t *testing.T) {
 	roomba, _ := NewRoomba(conn)
 	data := make([]byte, 1)
 	go func() {
-		err := roomba.Full()
-		if err != nil {
+		if err := roomba.Full(); err != nil {
 			t.Error(err)
 		}
 	}()
@@ -87,8 +84,7 @@ func TestPower(t *testing.T) {
 	roomba, _ := NewRoomba(conn)
 	data := make([]byte, 1)
 	go func() {
-		err := roomba.Power()
-		if err != nil {
+		if err := roomba.Power(); err != nil {
 			t.Error(err)
 		}
 	}()
@@ -109,8 +105,7 @@ func TestSpot(t *testing.T) {
 	roomba, _ := NewRoomba(conn)
 	data := make([]byte, 1)
 	go func() {
-		err := roomba.Spot()
-		if err != nil {
+		if err := roomba.Spot(); err != nil {
 			t.Error(err)
 		}
 	}()
@@ -131,8 +126,7 @@ func TestClean(t *testing.T) {
 	roomba, _ := NewRoomba(conn)
 	data := make([]byte, 1)
 	go func() {
-		err := roomba.Clean()
-		if err != nil {
+		if err := roomba.Clean(); err != nil {
 			t.Error(err)
 		}
 	}()
@@ -153,8 +147,7 @@ func TestMax(t *testing.T) {
 	roomba, _ := NewRoomba(conn)
 	data := make([]byte, 1)
 	go func() {
-		err := roomba.Max()
-		if err != nil {
+		if err := roomba.Max(); err != nil {
 			t.Error(err)
 		}
 	}()

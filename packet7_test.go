@@ -6,8 +6,7 @@ func TestExtract7(t *testing.T) {
 	data := make([]byte, 1)
 	packet := makePacket7().(*Packet7)
 	data[0] = 0b00000000
-	err := packet.Extract(data, 0)
-	if err != nil {
+	if err := packet.Extract(data, 0); err != nil {
 		t.Error(err)
 	}
 	if packet.BumpRight != false {
@@ -23,8 +22,7 @@ func TestExtract7(t *testing.T) {
 		t.Errorf("WheelDropLeft has wrong value")
 	}
 	data[0] = 0b00001111
-	err = packet.Extract(data, 0)
-	if err != nil {
+	if err := packet.Extract(data, 0); err != nil {
 		t.Error(err)
 	}
 	if packet.BumpRight != true {

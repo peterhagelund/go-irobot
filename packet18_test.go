@@ -6,8 +6,7 @@ func TestExtract18(t *testing.T) {
 	data := make([]byte, 1)
 	packet := makePacket18().(*Packet18)
 	data[0] = 0b00000000
-	err := packet.Extract(data, 0)
-	if err != nil {
+	if err := packet.Extract(data, 0); err != nil {
 		t.Error(err)
 	}
 	if packet.Clean != false {
@@ -35,8 +34,7 @@ func TestExtract18(t *testing.T) {
 		t.Errorf("Clock has wrong value")
 	}
 	data[0] = 0b11111111
-	err = packet.Extract(data, 0)
-	if err != nil {
+	if err := packet.Extract(data, 0); err != nil {
 		t.Error(err)
 	}
 	if packet.Clean != true {
@@ -64,8 +62,7 @@ func TestExtract18(t *testing.T) {
 		t.Errorf("Clock has wrong value")
 	}
 	data[0] = 0b01010101
-	err = packet.Extract(data, 0)
-	if err != nil {
+	if err := packet.Extract(data, 0); err != nil {
 		t.Error(err)
 	}
 	if packet.Clean != true {

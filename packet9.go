@@ -19,8 +19,8 @@ func (packet *Packet9) Size() int {
 
 // Extract extracts the information in the specified data starting at the specified offset.
 func (packet *Packet9) Extract(data []byte, offset int) error {
-	if offset >= len(data) {
-		return errors.New("offset exceeds data length")
+	if offset+packet.Size() > len(data) {
+		return errors.New("packet exceeds data length")
 	}
 	packet.CliffLeft = data[offset] != 0x00
 	return nil
