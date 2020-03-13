@@ -4,10 +4,10 @@ import "errors"
 
 // Packet7 is an encapsulation of a Packet with id 7.
 type Packet7 struct {
-	WheelDropLeft  bool
-	WheelDropRight bool
-	BumpLeft       bool
 	BumpRight      bool
+	BumpLeft       bool
+	WheelDropRight bool
+	WheelDropLeft  bool
 }
 
 // ID returns the id.
@@ -26,10 +26,10 @@ func (packet *Packet7) Extract(data []byte, offset int) error {
 		return errors.New("offset exceeds data length")
 	}
 	bits := data[offset]
-	packet.WheelDropLeft = bits&0b00001000 != 0b00000000
-	packet.WheelDropRight = bits&0b00000100 != 0b00000000
-	packet.BumpLeft = bits&0b00000010 != 0b00000000
 	packet.BumpRight = bits&0b00000001 != 0b00000000
+	packet.BumpLeft = bits&0b00000010 != 0b00000000
+	packet.WheelDropRight = bits&0b00000100 != 0b00000000
+	packet.WheelDropLeft = bits&0b00001000 != 0b00000000
 	return nil
 }
 

@@ -20,8 +20,7 @@ cleaner fall down a staircase, and possibly hit and ingest your pet(s) or a chil
 very carefully and _test your software to destruction_ **before** letting this thing loose in your house. _Ye be warned!_
 
 _Please note:_ I am in no way affiliated with iRobot or any of its subsidiaries or suppliers. I have used their products for several
-years (my first one was a _Roomba Red_) and have written libraries similar to this one in Java, C, C++, Python, Go, and likely other
-languages simply because I enjoy doing so.
+years (my first one was a _Roomba Red_) and have written libraries similar to this one in Java, C, C++, Python, Swift, and likely other languages simply because I enjoy doing so.
 
 ## Installing
 
@@ -43,12 +42,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-    defer conn.Close()
-    roomba, err := irobot.NewRoomba(conn)
+	defer conn.Close()
+	roomba, err := irobot.NewRoomba(conn)
 	if err != nil {
 		panic(err)
-    }
-    // TODO - more example code.
+	}
+	// TODO - more example code.
 }
 ```
 
