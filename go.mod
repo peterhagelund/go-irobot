@@ -1,3 +1,3 @@
-module github.com/peterhagelund/irobot
+module github.com/peterhagelund/go-irobot
 
 go 1.14

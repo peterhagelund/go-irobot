@@ -1,69 +1,47 @@
 package irobot
 
+import (
+	"fmt"
+	"reflect"
+)
+
 // Packet defines the common, required behavior of a packet.
 type Packet interface {
 	// ID returns the packet ID.
-	ID() uint8
+	ID() int
 	// Size returns the packet size.
-	Size() uint8
+	Size() int
 	// Extract extracts the information in the specified data starting at the specified offset.
 	Extract(data []byte, offset int) error
 }
 
-var packetFacory = map[uint8]func() Packet{
-	0: makePacket0,
-	7: makePacket7,
+var packetFacory = map[int]func() Packet{
+	0:  makePacket0,
+	7:  makePacket7,
+	8:  makePacket8,
+	9:  makePacket9,
+	10: makePacket10,
+	11: makePacket11,
 }
 
-// Packet0 is an encapsulation of a Packet with id 0.
-type Packet0 struct {
-	packet7 *Packet7
-}
-
-// ID returns the id.
-func (p *Packet0) ID() uint8 {
-	return 0
-}
-
-// Extract extracts the information in the specified data starting at the specified offset.
-func (p *Packet0) Extract(data []byte, offset int) error {
-	return nil
-}
-
-// Size returns the size.
-func (p *Packet0) Size() uint8 {
-	return 26
-}
-
-// Packet7 is an encapsulation of a Packet with id 7.
-type Packet7 struct {
-	WheelDropLeft  bool
-	WheelDropRight bool
-	BumpLeft       bool
-	BumpRight      bool
-}
-
-// ID returns the id.
-func (p *Packet7) ID() uint8 {
-	return 7
-}
-
-// Size returns the size.
-func (p *Packet7) Size() uint8 {
-	return 1
-}
-
-// Extract extracts the information in the specified data starting at the specified offset.
-func (p *Packet7) Extract(data []byte, offset int) error {
-	return nil
-}
-
-func makePacket0() Packet {
-	return &Packet0{
-		packet7: &Packet7{},
+// NewPacket creates and returns a new packet for the specified id.
+func NewPacket(id int) (Packet, error) {
+	f, ok := packetFacory[id]
+	if !ok {
+		return nil, fmt.Errorf("packet with id %d is unknown", id)
 	}
+	return f(), nil
 }
 
-func makePacket7() Packet {
-	return &Packet7{}
+func extractGroupPacket(packet Packet, data []byte, offset int) error {
+	value := reflect.ValueOf(packet).Elem()
+	for i := 0; i < value.NumField(); i++ {
+		f := value.Field(i)
+		p := f.Interface().(Packet)
+		if err := p.Extract(data, offset); err != nil {
+			return err
+		}
+		offset += p.Size()
+	}
+	return nil
 }

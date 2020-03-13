@@ -2,7 +2,6 @@ package irobot
 
 import (
 	"errors"
-	"fmt"
 	"net"
 	"time"
 )
@@ -137,7 +136,7 @@ type Roomba interface {
 	// Motors controls the brush and vacuum motors.
 	Motors(mainBrush MainBrush, sideBrush SideBrush, vacuum Vacuum) error
 
-	Sensors(id uint8) (Packet, error)
+	Sensors(id int) (Packet, error)
 }
 
 type roomba struct {
@@ -148,7 +147,7 @@ type roomba struct {
 // NewRoomba creates and returns a new Roomba instance for the specified connection.
 func NewRoomba(conn net.Conn) (Roomba, error) {
 	if conn == nil {
-		return nil, errors.New("Nil connection supplied")
+		return nil, errors.New("nil connection supplied")
 	}
 	return &roomba{
 		conn:      conn,
@@ -204,16 +203,24 @@ func (r *roomba) Motors(mainBrush MainBrush, sideBrush SideBrush, vacuum Vacuum)
 	return nil
 }
 
-func (r *roomba) Sensors(id uint8) (Packet, error) {
-	f, ok := packetFacory[id]
-	if !ok {
-		return nil, fmt.Errorf("Packet with id %d is unknown", id)
+func (r *roomba) Sensors(id int) (Packet, error) {
+	packet, err := NewPacket(id)
+	if err != nil {
+		return nil, err
 	}
-	packet := f()
-	// TODO:
-	// Read the data
-	// Extract the packet
+	err = r.UpdateSensors(packet)
+	if err != nil {
+		return nil, err
+	}
 	return packet, nil
+}
+
+func (r *roomba) UpdateSensors(packet Packet) error {
+	// TODO
+	// send sensor op-code
+	// read sensor data
+	// extract
+	return nil
 }
 
 func (r *roomba) write(data []byte) error {
@@ -228,7 +235,7 @@ func (r *roomba) write(data []byte) error {
 		return err
 	}
 	if n < len(data) {
-		return errors.New("Incomplete write")
+		return errors.New("incomplete write")
 	}
 	return nil
 }
