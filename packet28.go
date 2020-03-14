@@ -2,34 +2,34 @@ package irobot
 
 import "errors"
 
-// Packet27 is an encapsulation of a Packet with id 27.
-type Packet27 struct {
-	WallSignal uint16
+// Packet28 is an encapsulation of a Packet with id 28.
+type Packet28 struct {
+	CliffLeftSignal uint16
 }
 
 // ID returns the id.
-func (packet *Packet27) ID() int {
-	return 27
+func (packet *Packet28) ID() int {
+	return 28
 }
 
 // Size returns the size.
-func (packet *Packet27) Size() int {
+func (packet *Packet28) Size() int {
 	return 2
 }
 
 // Extract extracts the information in the specified data starting at the specified offset.
-func (packet *Packet27) Extract(data []byte, offset int) error {
+func (packet *Packet28) Extract(data []byte, offset int) error {
 	if offset+packet.Size() > len(data) {
 		return errors.New("packet exceeds data length")
 	}
-	wallSignal := bytesToUint16(data[offset], data[offset+1])
-	if wallSignal > 1023 {
-		return errors.New("invalid wall signal")
+	cliffLeftSignal := bytesToUint16(data[offset], data[offset+1])
+	if cliffLeftSignal > 4095 {
+		return errors.New("invalid cliff left signal")
 	}
-	packet.WallSignal = wallSignal
+	packet.CliffLeftSignal = cliffLeftSignal
 	return nil
 }
 
-func makePacket27() Packet {
-	return &Packet27{}
+func makePacket28() Packet {
+	return &Packet28{}
 }
