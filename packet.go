@@ -17,6 +17,12 @@ type Packet interface {
 
 var packetFacory = map[int]func() Packet{
 	0:  makePacket0,
+	1:  makePacket1,
+	2:  makePacket2,
+	3:  makePacket3,
+	4:  makePacket4,
+	5:  makePacket5,
+	6:  makePacket6,
 	7:  makePacket7,
 	8:  makePacket8,
 	9:  makePacket9,
