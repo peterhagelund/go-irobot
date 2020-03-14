@@ -37,6 +37,8 @@ var packetFacory = map[int]func() Packet{
 	24: makePacket24,
 	25: makePacket25,
 	26: makePacket26,
+	27: makePacket27,
+	28: makePacket28,
 }
 
 // NewPacket creates and returns a new packet for the specified id.
