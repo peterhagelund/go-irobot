@@ -22,6 +22,8 @@ type Packet0 struct {
 	Packet22 *Packet22
 	Packet23 *Packet23
 	Packet24 *Packet24
+	Packet25 *Packet25
+	Packet26 *Packet26
 }
 
 // ID returns the id.
@@ -62,5 +64,7 @@ func makePacket0() Packet {
 		Packet22: &Packet22{},
 		Packet23: &Packet23{},
 		Packet24: &Packet24{},
+		Packet25: &Packet25{},
+		Packet26: &Packet26{},
 	}
 }

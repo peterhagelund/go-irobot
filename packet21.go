@@ -22,7 +22,7 @@ func (packet *Packet21) Extract(data []byte, offset int) error {
 	if offset+packet.Size() > len(data) {
 		return errors.New("packet exceeds data length")
 	}
-	switch data[0] {
+	switch data[offset] {
 	case 0:
 		packet.ChargingState = ChargingStateNotCharging
 	case 1:
