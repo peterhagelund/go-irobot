@@ -113,6 +113,26 @@ const (
 	VacuumOn
 )
 
+// ChargingState is the charging state type.
+type ChargingState byte
+
+const (
+	// ChargingStateNotCharging indicates the battery is not charging.
+	ChargingStateNotCharging ChargingState = iota
+	// ChargingStateReconditioningCharging indicates the battery is being reconditioning charged.
+	ChargingStateReconditioningCharging
+	// ChargingStateFullCharging indicates the battery is being full charged.
+	ChargingStateFullCharging
+	// ChargingStateTrickleCharging indicates the battery is being trickle charged.
+	ChargingStateTrickleCharging
+	// ChargingStateWaiting indicates the Roomba is waiting to charge the battery.
+	ChargingStateWaiting
+	// ChargingStateChargingFaultCondition indicates a fault condition while charging.
+	ChargingStateChargingFaultCondition
+	// ChargingStateUnknown indicates an unknown charging state.
+	ChargingStateUnknown
+)
+
 // Roomba defines the required behavior of an iRobot Roomba vacuum cleaner OIC.
 type Roomba interface {
 	// Start starts the OIC.

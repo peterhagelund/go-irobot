@@ -15,6 +15,9 @@ var packetSizes = map[int]int{
 	5:   12,
 	6:   52,
 	19:  2,
+	20:  2,
+	22:  2,
+	23:  2,
 	100: 80,
 	101: 28,
 	106: 12,
@@ -28,19 +31,19 @@ func TestNewPacket(t *testing.T) {
 			t.Error(err)
 		}
 		if packet.ID() != id {
-			t.Errorf("expected packet with id %d, got %d", id, packet.ID())
+			t.Errorf("expected packet %T to have id %d, got %d", packet, id, packet.ID())
 		}
 		size, ok := packetSizes[id]
 		if !ok {
 			size = 1
 		}
 		if packet.Size() != size {
-			t.Errorf("expected packet with size %d, got %d", size, packet.Size())
+			t.Errorf("expected packet %T to have size %d, got %d", packet, size, packet.Size())
 		}
 		expected := fmt.Sprintf("*irobot.Packet%d", id)
 		actual := reflect.TypeOf(packet).String()
 		if actual != expected {
-			t.Errorf("expected packet with name '%s', got '%s'", expected, actual)
+			t.Errorf("expected packet %T to have name '%s', got '%s'", packet, expected, actual)
 		}
 	}
 }

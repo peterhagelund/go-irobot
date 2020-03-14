@@ -21,4 +21,12 @@ func TestExtract19(t *testing.T) {
 	if packet.Distance != 500 {
 		t.Errorf("Distance has wrong value")
 	}
+	data[0] = 0xfe
+	data[1] = 0x0c
+	if err := packet.Extract(data, 0); err != nil {
+		t.Error(err)
+	}
+	if packet.Distance != -500 {
+		t.Errorf("Distance has wrong value")
+	}
 }
