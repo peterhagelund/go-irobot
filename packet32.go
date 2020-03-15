@@ -2,7 +2,7 @@ package irobot
 
 import "errors"
 
-// Packet32 is an encapsulation of a Packet with id 16.
+// Packet32 is an encapsulation of a Packet with id 32.
 type Packet32 struct {
 	UnusedByte uint8
 }

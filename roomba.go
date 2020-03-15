@@ -133,6 +133,22 @@ const (
 	ChargingStateUnknown
 )
 
+// Mode is the Open Interface ("OI") mode type.
+type Mode byte
+
+const (
+	// ModeOff indicates the IO is in "off" mode.
+	ModeOff Mode = iota
+	// ModePassive indicates the IO is in "passive" mode.
+	ModePassive
+	// ModeSafe indicates the IO is in "safe" mode.
+	ModeSafe
+	// ModeFull indicates the IO is in "full" mode.
+	ModeFull
+	// ModeUnknown indicates the IO is in "unknown" mode.
+	ModeUnknown
+)
+
 // Roomba defines the required behavior of an iRobot Roomba vacuum cleaner OIC.
 type Roomba interface {
 	// Start starts the OIC.

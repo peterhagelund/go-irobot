@@ -3,6 +3,7 @@ package irobot
 import "testing"
 
 func TestExtract100(t *testing.T) {
+	packet := makePacket100().(*Packet100)
 	data := make([]byte, 80)
 	data[0] = 0b00000010  // Packet7
 	data[1] = 0x01        // Packet8
@@ -30,7 +31,6 @@ func TestExtract100(t *testing.T) {
 	data[23] = 0x88       // -
 	data[24] = 0x27       // Packet26
 	data[25] = 0x10       // -
-	packet := makePacket100().(*Packet100)
 	err := packet.Extract(data, 0)
 	if err != nil {
 		t.Error(err)
