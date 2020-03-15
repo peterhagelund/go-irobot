@@ -217,7 +217,7 @@ func TestDrive(t *testing.T) {
 		t.Error(err)
 	}
 	if n != 5 {
-		t.Errorf("expected 1 byte, got %d", n)
+		t.Errorf("expected 5 bytes, got %d", n)
 	}
 	if data[0] != 137 {
 		t.Errorf("expected drive op-code, got %d", data[0])
@@ -244,7 +244,7 @@ func TestMotors(t *testing.T) {
 		t.Error(err)
 	}
 	if n != 2 {
-		t.Errorf("expected 1 byte, got %d", n)
+		t.Errorf("expected 2 bytes, got %d", n)
 	}
 	if data[0] != 138 {
 		t.Errorf("expected motors op-code, got %d", data[0])
@@ -280,15 +280,54 @@ func TestDriveDirect(t *testing.T) {
 		t.Error(err)
 	}
 	if n != 5 {
-		t.Errorf("expected 1 byte, got %d", n)
+		t.Errorf("expected 5 bytes, got %d", n)
 	}
 	if data[0] != 145 {
-		t.Errorf("expected drive op-code, got %d", data[0])
+		t.Errorf("expected drive direct op-code, got %d", data[0])
 	}
 	if data[1] != 0x00 || data[2] != 0xfa {
 		t.Errorf("expected 0x00, 0xfa right velocity, got 0x%02x, 0x%02x", data[1], data[2])
 	}
 	if data[3] != 0xff || data[4] != 0x06 {
 		t.Errorf("expected 0xff, 0x06 left velocity, got 0x%02x, 0x%02x", data[3], data[4])
+	}
+}
+
+func TestMotorsPWM(t *testing.T) {
+	dummy, conn := net.Pipe()
+	roomba, _ := NewRoomba(conn)
+	if err := roomba.MotorsPWM(-128, 0, 0); err == nil {
+		t.Fatal("invalid main brush PWM not rejected")
+	}
+	if err := roomba.MotorsPWM(0, -128, 0); err == nil {
+		t.Fatal("invalid side brush PWM not rejected")
+	}
+	if err := roomba.MotorsPWM(0, 0, 128); err == nil {
+		t.Fatal("invalid vacuum PWM not rejected")
+	}
+	data := make([]byte, 4)
+	go func() {
+		if err := roomba.MotorsPWM(-50, 50, 100); err != nil {
+			t.Error(err)
+		}
+	}()
+	n, err := dummy.Read(data)
+	if err != nil {
+		t.Error(err)
+	}
+	if n != 4 {
+		t.Errorf("expected 4 bytes, got %d", n)
+	}
+	if data[0] != 144 {
+		t.Errorf("expected motors PWN op-code, got %d", data[0])
+	}
+	if data[1] != 0xce {
+		t.Errorf("expected 0xce main brush PWM, got 0x%02x", data[1])
+	}
+	if data[2] != 0x32 {
+		t.Errorf("expected 0x32 side brush PWM, got 0x%02x", data[2])
+	}
+	if data[3] != 0x64 {
+		t.Errorf("expected 0x64 vacuum PWM, got 0x%02x", data[3])
 	}
 }

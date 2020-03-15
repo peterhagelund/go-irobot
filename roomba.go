@@ -15,6 +15,7 @@ const (
 	OpCodeStart OpCode = iota + 128
 	// OpCodeBaud changes the baud rate of the OIC.
 	OpCodeBaud
+	// Missing op-code.
 	_
 	// OpCodeSafe puts the OIC in safe mode.
 	OpCodeSafe
@@ -189,9 +190,11 @@ type Roomba interface {
 	// UpdateSensors requests an update for the specified sensor packet.
 	UpdateSensors(packet Packet) error
 	// DriveDirect controls the drive wheels directly by setting a velocity for each.
-	DriveDirect(leftVelocity, rightVelocity int16) error
-	// DrivePWM control the drive wheel directly using Pule Width Modulation (PWM).
-	DrivePWM(leftWheelPWM, rightWheelPWM int16) error
+	DriveDirect(leftVelocity int16, rightVelocity int16) error
+	// DrivePWM controls the drive wheels directly using Pulse Width Modulation (PWM).
+	DrivePWM(leftWheelPWM int16, rightWheelPWM int16) error
+	// MotorsPWM controls the brush and vacuum motors directlyt using Pulse Width Modulation (PWM).
+	MotorsPWM(mainBrushPWM int8, sideBrushPWM int8, vacuumPWM uint8) error
 }
 
 type roomba struct {
@@ -372,7 +375,7 @@ func (r *roomba) UpdateSensors(packet Packet) error {
 	return nil
 }
 
-func (r *roomba) DriveDirect(leftVelocity, rightVelocity int16) error {
+func (r *roomba) DriveDirect(leftVelocity int16, rightVelocity int16) error {
 	if leftVelocity < -500 || leftVelocity > 500 {
 		return fmt.Errorf("invalid left velocity (%d)", leftVelocity)
 	}
@@ -386,7 +389,7 @@ func (r *roomba) DriveDirect(leftVelocity, rightVelocity int16) error {
 	return r.write(data)
 }
 
-func (r *roomba) DrivePWM(leftWheelPWM, rightWheelPWM int16) error {
+func (r *roomba) DrivePWM(leftWheelPWM int16, rightWheelPWM int16) error {
 	if leftWheelPWM < -255 || leftWheelPWM > 255 {
 		return fmt.Errorf("invalid left wheel PWM value (%d)", leftWheelPWM)
 	}
@@ -397,6 +400,24 @@ func (r *roomba) DrivePWM(leftWheelPWM, rightWheelPWM int16) error {
 	data[0] = byte(OpCodeDriveDirect)
 	data[1], data[2] = int16ToBytes(rightWheelPWM)
 	data[3], data[4] = int16ToBytes(leftWheelPWM)
+	return r.write(data)
+}
+
+func (r *roomba) MotorsPWM(mainBrushPWM int8, sideBrushPWM int8, vacuumPWM uint8) error {
+	if mainBrushPWM < -127 {
+		return fmt.Errorf("invalid main brush PWM value (%d)", mainBrushPWM)
+	}
+	if sideBrushPWM < -127 {
+		return fmt.Errorf("invalid side brush PWM value (%d)", sideBrushPWM)
+	}
+	if vacuumPWM > 127 {
+		return fmt.Errorf("invalid vacuum PWM value (%d)", vacuumPWM)
+	}
+	data := make([]byte, 4)
+	data[0] = byte(OpCodeMotorsPWM)
+	data[1] = byte(mainBrushPWM)
+	data[2] = byte(sideBrushPWM)
+	data[3] = vacuumPWM
 	return r.write(data)
 }
 
