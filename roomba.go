@@ -155,8 +155,10 @@ type Roomba interface {
 	Drive(velocity int16, radius int16) error
 	// Motors controls the brush and vacuum motors.
 	Motors(mainBrush MainBrush, sideBrush SideBrush, vacuum Vacuum) error
-
+	// Sensors requests a sensor value packet from the Roomba.
 	Sensors(id int) (Packet, error)
+	// UpdateSensors requests an update for the specified sensor packet.
+	UpdateSensors(packet Packet) error
 }
 
 type roomba struct {

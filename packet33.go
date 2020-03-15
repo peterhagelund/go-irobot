@@ -2,7 +2,7 @@ package irobot
 
 import "errors"
 
-// Packet33 is an encapsulation of a Packet with id 16.
+// Packet33 is an encapsulation of a Packet with id 33.
 type Packet33 struct {
 	UnusedWord uint16
 }
