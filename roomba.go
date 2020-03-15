@@ -134,19 +134,19 @@ const (
 	ChargingStateUnknown
 )
 
-// Mode is the Open Interface ("OI") mode type.
+// Mode is the OIC mode type.
 type Mode byte
 
 const (
-	// ModeOff indicates the IO is in "off" mode.
+	// ModeOff indicates the OIC is in "off" mode.
 	ModeOff Mode = iota
-	// ModePassive indicates the IO is in "passive" mode.
+	// ModePassive indicates the OIC is in "passive" mode.
 	ModePassive
-	// ModeSafe indicates the IO is in "safe" mode.
+	// ModeSafe indicates the OIC is in "safe" mode.
 	ModeSafe
-	// ModeFull indicates the IO is in "full" mode.
+	// ModeFull indicates the OIC is in "full" mode.
 	ModeFull
-	// ModeUnknown indicates the IO is in "unknown" mode.
+	// ModeUnknown indicates the OIC is in "unknown" mode.
 	ModeUnknown
 )
 
@@ -190,6 +190,8 @@ type Roomba interface {
 	UpdateSensors(packet Packet) error
 	// DriveDirect controls the drive wheels directly by setting a velocity for each.
 	DriveDirect(leftVelocity, rightVelocity int16) error
+	// DrivePWM control the drive wheel directly using Pule Width Modulation (PWM).
+	DrivePWM(leftWheelPWM, rightWheelPWM int16) error
 }
 
 type roomba struct {
@@ -200,11 +202,11 @@ type roomba struct {
 // NewNote creates and returns a new Note with the specified number and duration.
 func NewNote(number uint8, duration time.Duration) (*Note, error) {
 	if number < 31 || number > 127 {
-		return nil, errors.New("invalid number")
+		return nil, fmt.Errorf("invalid number (%d)", number)
 	}
 	d := duration / time.Millisecond * 64 / 1000
 	if d > 255 {
-		return nil, errors.New("invalid duration")
+		return nil, fmt.Errorf("invalid duration (%d)", duration)
 	}
 	return &Note{
 		Number:   number,
@@ -274,10 +276,10 @@ func (r *roomba) Max() error {
 
 func (r *roomba) Drive(velocity int16, radius int16) error {
 	if velocity < -500 || velocity > 500 {
-		return errors.New("invalid velocity")
+		return fmt.Errorf("invalid velocity (%d)", velocity)
 	}
 	if radius < -2000 || radius > 2000 {
-		return errors.New("invalid radius")
+		return fmt.Errorf("invalid radius (%d)", radius)
 	}
 	data := make([]byte, 5)
 	data[0] = byte(OpCodeDrive)
@@ -318,17 +320,18 @@ func (r *roomba) Motors(mainBrush MainBrush, sideBrush SideBrush, vacuum Vacuum)
 
 func (r *roomba) Song(number uint8, notes []Note) error {
 	if number > 4 {
-		return errors.New("invalid song number")
+		return fmt.Errorf("invalid song number (%d)", number)
 	}
-	if len(notes) < 1 || len(notes) > 16 {
-		return errors.New("invalid number of notes")
+	noteCount := len(notes)
+	if noteCount < 1 || noteCount > 16 {
+		return fmt.Errorf("invalid number of notes (%d)", noteCount)
 	}
 	for i, note := range notes {
 		if note.Number < 31 || note.Number > 127 {
 			return fmt.Errorf("note at index %d has invalid number", i)
 		}
 	}
-	data := make([]byte, 3+2*len(notes))
+	data := make([]byte, 3+2*noteCount)
 	data[0] = byte(OpCodeSong)
 	data[1] = number
 	data[2] = byte(len(notes))
@@ -341,7 +344,7 @@ func (r *roomba) Song(number uint8, notes []Note) error {
 
 func (r *roomba) Play(number uint8) error {
 	if number > 4 {
-		return errors.New("invalid song number")
+		return fmt.Errorf("invalid song number (%d)", number)
 	}
 	data := make([]byte, 2)
 	data[0] = byte(OpCodePlay)
@@ -371,15 +374,29 @@ func (r *roomba) UpdateSensors(packet Packet) error {
 
 func (r *roomba) DriveDirect(leftVelocity, rightVelocity int16) error {
 	if leftVelocity < -500 || leftVelocity > 500 {
-		return errors.New("invalid left velocity")
+		return fmt.Errorf("invalid left velocity (%d)", leftVelocity)
 	}
 	if rightVelocity < -500 || rightVelocity > 500 {
-		return errors.New("invalid right velocity")
+		return fmt.Errorf("invalid right velocity (%d)", rightVelocity)
 	}
 	data := make([]byte, 5)
 	data[0] = byte(OpCodeDriveDirect)
 	data[1], data[2] = int16ToBytes(rightVelocity)
 	data[3], data[4] = int16ToBytes(leftVelocity)
+	return r.write(data)
+}
+
+func (r *roomba) DrivePWM(leftWheelPWM, rightWheelPWM int16) error {
+	if leftWheelPWM < -255 || leftWheelPWM > 255 {
+		return fmt.Errorf("invalid left wheel PWM value (%d)", leftWheelPWM)
+	}
+	if rightWheelPWM < -255 || rightWheelPWM > 255 {
+		return fmt.Errorf("invalid right wheel PWM value (%d)", rightWheelPWM)
+	}
+	data := make([]byte, 5)
+	data[0] = byte(OpCodeDriveDirect)
+	data[1], data[2] = int16ToBytes(rightWheelPWM)
+	data[3], data[4] = int16ToBytes(leftWheelPWM)
 	return r.write(data)
 }
 
@@ -394,7 +411,7 @@ func (r *roomba) write(data []byte) error {
 	}
 	r.lastWrite = time.Now()
 	if n < len(data) {
-		return errors.New("incomplete write")
+		return fmt.Errorf("incomplete write (%d)", n)
 	}
 	return nil
 }
