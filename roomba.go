@@ -188,6 +188,8 @@ type Roomba interface {
 	Sensors(id int) (Packet, error)
 	// UpdateSensors requests an update for the specified sensor packet.
 	UpdateSensors(packet Packet) error
+	// DriveDirect controls the drive wheels directly by setting a velocity for each.
+	DriveDirect(leftVelocity, rightVelocity int16) error
 }
 
 type roomba struct {
@@ -365,6 +367,20 @@ func (r *roomba) UpdateSensors(packet Packet) error {
 	// read sensor data
 	// extract
 	return nil
+}
+
+func (r *roomba) DriveDirect(leftVelocity, rightVelocity int16) error {
+	if leftVelocity < -500 || leftVelocity > 500 {
+		return errors.New("invalid left velocity")
+	}
+	if rightVelocity < -500 || rightVelocity > 500 {
+		return errors.New("invalid right velocity")
+	}
+	data := make([]byte, 5)
+	data[0] = byte(OpCodeDriveDirect)
+	data[1], data[2] = int16ToBytes(rightVelocity)
+	data[3], data[4] = int16ToBytes(leftVelocity)
+	return r.write(data)
 }
 
 func (r *roomba) write(data []byte) error {

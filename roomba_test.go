@@ -194,6 +194,18 @@ func TestMax(t *testing.T) {
 func TestDrive(t *testing.T) {
 	dummy, conn := net.Pipe()
 	roomba, _ := NewRoomba(conn)
+	if err := roomba.Drive(-700, 0); err == nil {
+		t.Fatal("invalid velocity not rejected")
+	}
+	if err := roomba.Drive(700, 0); err == nil {
+		t.Fatal("invalid velocity not rejected")
+	}
+	if err := roomba.Drive(200, -10000); err == nil {
+		t.Fatal("invalid radius not rejected")
+	}
+	if err := roomba.Drive(200, 10000); err == nil {
+		t.Fatal("invalid radius not rejected")
+	}
 	data := make([]byte, 5)
 	go func() {
 		if err := roomba.Drive(200, -1000); err != nil {
@@ -239,5 +251,44 @@ func TestMotors(t *testing.T) {
 	}
 	if data[1] != 0b00001111 {
 		t.Errorf("expected motor bits 0b00001111, got 0b%08b", data[1])
+	}
+}
+
+func TestDriveDirect(t *testing.T) {
+	dummy, conn := net.Pipe()
+	roomba, _ := NewRoomba(conn)
+	if err := roomba.DriveDirect(-600, 200); err == nil {
+		t.Fatal("invalid left velocity not rejected")
+	}
+	if err := roomba.DriveDirect(600, 200); err == nil {
+		t.Fatal("invalid left velocity not rejected")
+	}
+	if err := roomba.DriveDirect(200, -600); err == nil {
+		t.Fatal("invalid right velocity not rejected")
+	}
+	if err := roomba.DriveDirect(200, 600); err == nil {
+		t.Fatal("invalid right velocity not rejected")
+	}
+	data := make([]byte, 5)
+	go func() {
+		if err := roomba.DriveDirect(-250, 250); err != nil {
+			t.Error(err)
+		}
+	}()
+	n, err := dummy.Read(data)
+	if err != nil {
+		t.Error(err)
+	}
+	if n != 5 {
+		t.Errorf("expected 1 byte, got %d", n)
+	}
+	if data[0] != 145 {
+		t.Errorf("expected drive op-code, got %d", data[0])
+	}
+	if data[1] != 0x00 || data[2] != 0xfa {
+		t.Errorf("expected 0x00, 0xfa right velocity, got 0x%02x, 0x%02x", data[1], data[2])
+	}
+	if data[3] != 0xff || data[4] != 0x06 {
+		t.Errorf("expected 0xff, 0x06 left velocity, got 0x%02x, 0x%02x", data[3], data[4])
 	}
 }
