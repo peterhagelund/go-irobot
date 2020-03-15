@@ -2,6 +2,7 @@ package irobot
 
 import (
 	"errors"
+	"fmt"
 	"net"
 	"time"
 )
@@ -149,6 +150,14 @@ const (
 	ModeUnknown
 )
 
+// Note is an encapsulation of a single Roomba song note.
+type Note struct {
+	// Number is the note number (31 to 127)
+	Number uint8
+	// Duration is the note duration in 1/64th of a second (0 to 255)
+	Duration uint8
+}
+
 // Roomba defines the required behavior of an iRobot Roomba vacuum cleaner OIC.
 type Roomba interface {
 	// Start starts the OIC.
@@ -171,6 +180,10 @@ type Roomba interface {
 	Drive(velocity int16, radius int16) error
 	// Motors controls the brush and vacuum motors.
 	Motors(mainBrush MainBrush, sideBrush SideBrush, vacuum Vacuum) error
+	// Song defines a song.
+	Song(number uint8, note []Note) error
+	// Play instructs the Roomba to play the specified song.
+	Play(number uint8) error
 	// Sensors requests a sensor value packet from the Roomba.
 	Sensors(id int) (Packet, error)
 	// UpdateSensors requests an update for the specified sensor packet.
@@ -180,6 +193,21 @@ type Roomba interface {
 type roomba struct {
 	conn      net.Conn
 	lastWrite time.Time
+}
+
+// NewNote creates and returns a new Note with the specified number and duration.
+func NewNote(number uint8, duration time.Duration) (*Note, error) {
+	if number < 31 || number > 127 {
+		return nil, errors.New("invalid number")
+	}
+	d := duration / time.Millisecond * 64 / 1000
+	if d > 255 {
+		return nil, errors.New("invalid duration")
+	}
+	return &Note{
+		Number:   number,
+		Duration: uint8(d),
+	}, nil
 }
 
 // NewRoomba creates and returns a new Roomba instance for the specified connection.
@@ -194,51 +222,129 @@ func NewRoomba(conn net.Conn) (Roomba, error) {
 }
 
 func (r *roomba) Start() error {
-	data := [...]byte{byte(OpCodeStart)}
-	return r.write(data[:])
+	data := make([]byte, 1)
+	data[0] = byte(OpCodeStart)
+	return r.write(data)
 }
 
 func (r *roomba) SetBaud(baudRate BaudRate) error {
-	data := [...]byte{byte(OpCodeBaud), byte(baudRate)}
-	return r.write(data[:])
+	data := make([]byte, 12)
+	data[0] = byte(OpCodeBaud)
+	data[1] = byte(baudRate)
+	return r.write(data)
 }
 
 func (r *roomba) Safe() error {
-	data := [...]byte{byte(OpCodeSafe)}
-	return r.write(data[:])
+	data := make([]byte, 1)
+	data[0] = byte(OpCodeSafe)
+	return r.write(data)
 }
 
 func (r *roomba) Full() error {
-	data := [...]byte{byte(OpCodeFull)}
-	return r.write(data[:])
+	data := make([]byte, 1)
+	data[0] = byte(OpCodeFull)
+	return r.write(data)
 }
 
 func (r *roomba) Power() error {
-	data := [...]byte{byte(OpCodePower)}
-	return r.write(data[:])
+	data := make([]byte, 1)
+	data[0] = byte(OpCodePower)
+	return r.write(data)
 }
 
 func (r *roomba) Spot() error {
-	data := [...]byte{byte(OpCodeSpot)}
-	return r.write(data[:])
+	data := make([]byte, 1)
+	data[0] = byte(OpCodeSpot)
+	return r.write(data)
 }
 
 func (r *roomba) Clean() error {
-	data := [...]byte{byte(OpCodeClean)}
-	return r.write(data[:])
+	data := make([]byte, 1)
+	data[0] = byte(OpCodeClean)
+	return r.write(data)
 }
 
 func (r *roomba) Max() error {
-	data := [...]byte{byte(OpCodeMax)}
-	return r.write(data[:])
+	data := make([]byte, 1)
+	data[0] = byte(OpCodeMax)
+	return r.write(data)
 }
 
 func (r *roomba) Drive(velocity int16, radius int16) error {
-	return nil
+	if velocity < -500 || velocity > 500 {
+		return errors.New("invalid velocity")
+	}
+	if radius < -2000 || radius > 2000 {
+		return errors.New("invalid radius")
+	}
+	data := make([]byte, 5)
+	data[0] = byte(OpCodeDrive)
+	data[1], data[2] = int16ToBytes(velocity)
+	data[3], data[4] = int16ToBytes(radius)
+	return r.write(data)
 }
 
 func (r *roomba) Motors(mainBrush MainBrush, sideBrush SideBrush, vacuum Vacuum) error {
-	return nil
+	data := make([]byte, 2)
+	data[0] = byte(OpCodeMotors)
+	var bits byte = 0b00000000
+	switch mainBrush {
+	case MainBrushOff:
+		break
+	case MainBrushInward:
+		bits |= 0b00000100
+	case MainBrushOutward:
+		bits |= 0b00010100
+	}
+	switch sideBrush {
+	case SideBrushOff:
+		break
+	case SideBrushCounterClockwise:
+		bits |= 0b00000001
+	case SideBrushClockwise:
+		bits |= 0b00001001
+	}
+	switch vacuum {
+	case VacuumOff:
+		break
+	case VacuumOn:
+		bits |= 0b00000010
+	}
+	data[1] = bits
+	return r.write(data)
+}
+
+func (r *roomba) Song(number uint8, notes []Note) error {
+	if number > 4 {
+		return errors.New("invalid song number")
+	}
+	if len(notes) < 1 || len(notes) > 16 {
+		return errors.New("invalid number of notes")
+	}
+	for i, note := range notes {
+		if note.Number < 31 || note.Number > 127 {
+			return fmt.Errorf("note at index %d has invalid number", i)
+		}
+	}
+	data := make([]byte, 3+2*len(notes))
+	data[0] = byte(OpCodeSong)
+	data[1] = number
+	data[2] = byte(len(notes))
+	for i, note := range notes {
+		data[3+i*2+0] = note.Number
+		data[3+i*2+1] = note.Duration
+	}
+	return r.write(data)
+}
+
+func (r *roomba) Play(number uint8) error {
+	if number > 4 {
+		return errors.New("invalid song number")
+	}
+	data := make([]byte, 2)
+	data[0] = byte(OpCodePlay)
+	data[1] = number
+	return r.write(data)
 }
 
 func (r *roomba) Sensors(id int) (Packet, error) {
@@ -262,16 +368,15 @@ func (r *roomba) UpdateSensors(packet Packet) error {
 }
 
 func (r *roomba) write(data []byte) error {
-	for {
-		if r.lastWrite.Add(time.Duration(50 * time.Millisecond)).Before(time.Now()) {
-			break
-		}
-		time.Sleep(time.Duration(10 * time.Millisecond))
+	duration := time.Now().Sub(r.lastWrite)
+	if duration < 50*time.Millisecond {
+		time.Sleep(duration)
 	}
 	n, err := r.conn.Write(data)
 	if err != nil {
 		return err
 	}
+	r.lastWrite = time.Now()
 	if n < len(data) {
 		return errors.New("incomplete write")
 	}

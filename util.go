@@ -12,6 +12,6 @@ func bytesToInt16(hi, lo byte) int16 {
 	return int16(hi)<<8 | int16(lo)
 }
 
-func int16ToBytes(value int) (byte, byte) {
+func int16ToBytes(value int16) (byte, byte) {
 	return byte(value >> 8), byte(value & 0x00ff)
 }

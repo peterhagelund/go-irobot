@@ -3,7 +3,35 @@ package irobot
 import (
 	"net"
 	"testing"
+	"time"
 )
+
+func TestNewNote(t *testing.T) {
+	note, err := NewNote(31, 500*time.Millisecond)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if note.Number != 31 {
+		t.Error("Number is invalid")
+	}
+	if note.Duration != 32 {
+		t.Error("Duration is invalid")
+	}
+	note, err = NewNote(127, 3000*time.Millisecond)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if note.Number != 127 {
+		t.Error("Number is invalid")
+	}
+	if note.Duration != 192 {
+		t.Error("Duration is invalid")
+	}
+	_, err = NewNote(31, 4000*time.Millisecond)
+	if err == nil {
+		t.Error("invalid duration not rejected")
+	}
+}
 
 func TestNewRoomba(t *testing.T) {
 	_, conn := net.Pipe()
@@ -160,5 +188,56 @@ func TestMax(t *testing.T) {
 	}
 	if data[0] != 136 {
 		t.Errorf("expected max op-code, got %d", data[0])
+	}
+}
+
+func TestDrive(t *testing.T) {
+	dummy, conn := net.Pipe()
+	roomba, _ := NewRoomba(conn)
+	data := make([]byte, 5)
+	go func() {
+		if err := roomba.Drive(200, -1000); err != nil {
+			t.Error(err)
+		}
+	}()
+	n, err := dummy.Read(data)
+	if err != nil {
+		t.Error(err)
+	}
+	if n != 5 {
+		t.Errorf("expected 1 byte, got %d", n)
+	}
+	if data[0] != 137 {
+		t.Errorf("expected drive op-code, got %d", data[0])
+	}
+	if data[1] != 0x00 || data[2] != 0xc8 {
+		t.Errorf("expected 0x00, 0xc8 velocity, got 0x%02x, 0x%02x", data[1], data[2])
+	}
+	if data[3] != 0xfc || data[4] != 0x18 {
+		t.Errorf("expected 0xfc, 0x18 radius, got 0x%02x, 0x%02x", data[3], data[4])
+	}
+}
+
+func TestMotors(t *testing.T) {
+	dummy, conn := net.Pipe()
+	roomba, _ := NewRoomba(conn)
+	data := make([]byte, 2)
+	go func() {
+		if err := roomba.Motors(MainBrushInward, SideBrushClockwise, VacuumOn); err != nil {
+			t.Error(err)
+		}
+	}()
+	n, err := dummy.Read(data)
+	if err != nil {
+		t.Error(err)
+	}
+	if n != 2 {
+		t.Errorf("expected 1 byte, got %d", n)
+	}
+	if data[0] != 138 {
+		t.Errorf("expected motors op-code, got %d", data[0])
+	}
+	if data[1] != 0b00001111 {
+		t.Errorf("expected motor bits 0b00001111, got 0b%08b", data[1])
 	}
 }
