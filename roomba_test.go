@@ -254,6 +254,45 @@ func TestMotors(t *testing.T) {
 	}
 }
 
+func TestMotorsPWM(t *testing.T) {
+	dummy, conn := net.Pipe()
+	roomba, _ := NewRoomba(conn)
+	if err := roomba.MotorsPWM(-128, 0, 0); err == nil {
+		t.Fatal("invalid main brush PWM not rejected")
+	}
+	if err := roomba.MotorsPWM(0, -128, 0); err == nil {
+		t.Fatal("invalid side brush PWM not rejected")
+	}
+	if err := roomba.MotorsPWM(0, 0, 128); err == nil {
+		t.Fatal("invalid vacuum PWM not rejected")
+	}
+	data := make([]byte, 4)
+	go func() {
+		if err := roomba.MotorsPWM(-50, 50, 100); err != nil {
+			t.Error(err)
+		}
+	}()
+	n, err := dummy.Read(data)
+	if err != nil {
+		t.Error(err)
+	}
+	if n != 4 {
+		t.Errorf("expected 4 bytes, got %d", n)
+	}
+	if data[0] != 144 {
+		t.Errorf("expected motors PWN op-code, got %d", data[0])
+	}
+	if data[1] != 0xce {
+		t.Errorf("expected 0xce main brush PWM, got 0x%02x", data[1])
+	}
+	if data[2] != 0x32 {
+		t.Errorf("expected 0x32 side brush PWM, got 0x%02x", data[2])
+	}
+	if data[3] != 0x64 {
+		t.Errorf("expected 0x64 vacuum PWM, got 0x%02x", data[3])
+	}
+}
+
 func TestDriveDirect(t *testing.T) {
 	dummy, conn := net.Pipe()
 	roomba, _ := NewRoomba(conn)
@@ -293,21 +332,24 @@ func TestDriveDirect(t *testing.T) {
 	}
 }
 
-func TestMotorsPWM(t *testing.T) {
+func TestDrivePWM(t *testing.T) {
 	dummy, conn := net.Pipe()
 	roomba, _ := NewRoomba(conn)
-	if err := roomba.MotorsPWM(-128, 0, 0); err == nil {
-		t.Fatal("invalid main brush PWM not rejected")
+	if err := roomba.DrivePWM(-300, 200); err == nil {
+		t.Fatal("invalid left wheel PWM not rejected")
 	}
-	if err := roomba.MotorsPWM(0, -128, 0); err == nil {
-		t.Fatal("invalid side brush PWM not rejected")
+	if err := roomba.DrivePWM(300, 200); err == nil {
+		t.Fatal("invalid left wheel PWM not rejected")
 	}
-	if err := roomba.MotorsPWM(0, 0, 128); err == nil {
-		t.Fatal("invalid vacuum PWM not rejected")
+	if err := roomba.DrivePWM(200, -300); err == nil {
+		t.Fatal("invalid right wheel PWM not rejected")
 	}
-	data := make([]byte, 4)
+	if err := roomba.DrivePWM(200, 300); err == nil {
+		t.Fatal("invalid right wheel PWM not rejected")
+	}
+	data := make([]byte, 5)
 	go func() {
-		if err := roomba.MotorsPWM(-50, 50, 100); err != nil {
+		if err := roomba.DrivePWM(200, -200); err != nil {
 			t.Error(err)
 		}
 	}()
@@ -315,19 +357,16 @@ func TestMotorsPWM(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if n != 4 {
-		t.Errorf("expected 4 bytes, got %d", n)
+	if n != 5 {
+		t.Errorf("expected 5 bytes, got %d", n)
 	}
-	if data[0] != 144 {
-		t.Errorf("expected motors PWN op-code, got %d", data[0])
+	if data[0] != 146 {
+		t.Errorf("expected drive PWM op-code, got %d", data[0])
 	}
-	if data[1] != 0xce {
-		t.Errorf("expected 0xce main brush PWM, got 0x%02x", data[1])
+	if data[1] != 0xff || data[2] != 0x38 {
+		t.Errorf("expected 0xff, 0x38 right wheel PWM, got 0x%02x, 0x%02x", data[1], data[2])
 	}
-	if data[2] != 0x32 {
-		t.Errorf("expected 0x32 side brush PWM, got 0x%02x", data[2])
-	}
-	if data[3] != 0x64 {
-		t.Errorf("expected 0x64 vacuum PWM, got 0x%02x", data[3])
+	if data[3] != 0x00 || data[4] != 0xc8 {
+		t.Errorf("expected 0x00, 0xc8 left wheel PWM, got 0x%02x, 0x%02x", data[3], data[4])
 	}
 }
