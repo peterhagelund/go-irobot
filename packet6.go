@@ -49,6 +49,17 @@ type Packet6 struct {
 	Packet29 *Packet29
 	Packet30 *Packet30
 	Packet31 *Packet31
+	Packet32 *Packet32
+	Packet33 *Packet33
+	Packet34 *Packet34
+	Packet35 *Packet35
+	Packet36 *Packet36
+	Packet37 *Packet37
+	Packet38 *Packet38
+	Packet39 *Packet39
+	Packet40 *Packet40
+	Packet41 *Packet41
+	Packet42 *Packet42
 }
 
 // ID returns the id.
@@ -96,5 +107,16 @@ func makePacket6() Packet {
 		Packet29: &Packet29{},
 		Packet30: &Packet30{},
 		Packet31: &Packet31{},
+		Packet32: &Packet32{},
+		Packet33: &Packet33{},
+		Packet34: &Packet34{},
+		Packet35: &Packet35{},
+		Packet36: &Packet36{},
+		Packet37: &Packet37{},
+		Packet38: &Packet38{},
+		Packet39: &Packet39{},
+		Packet40: &Packet40{},
+		Packet41: &Packet41{},
+		Packet42: &Packet42{},
 	}
 }

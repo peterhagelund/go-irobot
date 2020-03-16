@@ -44,6 +44,38 @@ type Packet100 struct {
 	Packet24 *Packet24
 	Packet25 *Packet25
 	Packet26 *Packet26
+	Packet27 *Packet27
+	Packet28 *Packet28
+	Packet29 *Packet29
+	Packet30 *Packet30
+	Packet31 *Packet31
+	Packet32 *Packet32
+	Packet33 *Packet33
+	Packet34 *Packet34
+	Packet35 *Packet35
+	Packet36 *Packet36
+	Packet37 *Packet37
+	Packet38 *Packet38
+	Packet39 *Packet39
+	Packet40 *Packet40
+	Packet41 *Packet41
+	Packet42 *Packet42
+	Packet43 *Packet43
+	Packet44 *Packet44
+	Packet45 *Packet45
+	Packet46 *Packet46
+	Packet47 *Packet47
+	Packet48 *Packet48
+	Packet49 *Packet49
+	Packet50 *Packet50
+	Packet51 *Packet51
+	Packet52 *Packet52
+	Packet53 *Packet53
+	Packet54 *Packet54
+	Packet55 *Packet55
+	Packet56 *Packet56
+	Packet57 *Packet57
+	Packet58 *Packet58
 }
 
 // ID returns the id.
@@ -86,5 +118,37 @@ func makePacket100() Packet {
 		Packet24: &Packet24{},
 		Packet25: &Packet25{},
 		Packet26: &Packet26{},
+		Packet27: &Packet27{},
+		Packet28: &Packet28{},
+		Packet29: &Packet29{},
+		Packet30: &Packet30{},
+		Packet31: &Packet31{},
+		Packet32: &Packet32{},
+		Packet33: &Packet33{},
+		Packet34: &Packet34{},
+		Packet35: &Packet35{},
+		Packet36: &Packet36{},
+		Packet37: &Packet37{},
+		Packet38: &Packet38{},
+		Packet39: &Packet39{},
+		Packet40: &Packet40{},
+		Packet41: &Packet41{},
+		Packet42: &Packet42{},
+		Packet43: &Packet43{},
+		Packet44: &Packet44{},
+		Packet45: &Packet45{},
+		Packet46: &Packet46{},
+		Packet47: &Packet47{},
+		Packet48: &Packet48{},
+		Packet49: &Packet49{},
+		Packet50: &Packet50{},
+		Packet51: &Packet51{},
+		Packet52: &Packet52{},
+		Packet53: &Packet53{},
+		Packet54: &Packet54{},
+		Packet55: &Packet55{},
+		Packet56: &Packet56{},
+		Packet57: &Packet57{},
+		Packet58: &Packet58{},
 	}
 }

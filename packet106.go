@@ -24,6 +24,12 @@ import "errors"
 
 // Packet106 is an encapsulation of a Packet with id 101.
 type Packet106 struct {
+	Packet46 *Packet46
+	Packet47 *Packet47
+	Packet48 *Packet48
+	Packet49 *Packet49
+	Packet50 *Packet50
+	Packet51 *Packet51
 }
 
 // ID returns the id.
@@ -45,5 +51,12 @@ func (packet *Packet106) Extract(data []byte, offset int) error {
 }
 
 func makePacket106() Packet {
-	return &Packet106{}
+	return &Packet106{
+		Packet46: &Packet46{},
+		Packet47: &Packet47{},
+		Packet48: &Packet48{},
+		Packet49: &Packet49{},
+		Packet50: &Packet50{},
+		Packet51: &Packet51{},
+	}
 }
