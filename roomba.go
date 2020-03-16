@@ -7,21 +7,21 @@ import (
 	"time"
 )
 
-// OpCode is the OIC op-code type.
+// OpCode is the OI command op-code type.
 type OpCode byte
 
 const (
-	// OpCodeStart stats the OIC.
+	// OpCodeStart stats the OI.
 	OpCodeStart OpCode = iota + 128
-	// OpCodeBaud changes the baud rate of the OIC.
+	// OpCodeBaud changes the baud rate of the OI.
 	OpCodeBaud
-	// Missing op-code.
-	_
-	// OpCodeSafe puts the OIC in safe mode.
+	// OpCodeControl ...
+	OpCodeControl
+	// OpCodeSafe puts the OI in safe mode.
 	OpCodeSafe
-	// OpCodeFull puts the OIC in full mode.
+	// OpCodeFull puts the OI in full mode.
 	OpCodeFull
-	// OpCodePower powers off the OIC.
+	// OpCodePower powers off the OI.
 	OpCodePower
 	// OpCodeSpot starts a spot cleaning.
 	OpCodeSpot
@@ -49,9 +49,43 @@ const (
 	OpCodeDriveDirect
 	// OpCodeDrivePWM controls the wheel using pulse width modulation (PWM).
 	OpCodeDrivePWM
+	// Missing op-code.
+	_
+	// OpCodeStream instructs the Roomba to start streaming packets every 15 ms.
+	OpCodeStream
+	// OpCodeQueryList queries (once) a list of sensor packets.
+	OpCodeQueryList
+	// OpCodePauseResumeStream pauses and resumes the streaming of packets.
+	OpCodePauseResumeStream
+	// Missing op-codes.
+	_
+	_
+	_
+	_
+	_
+	_
+	_
+	_
+	_
+	_
+	_
+	// OpCodeSchedulingLEDs ...
+	OpCodeSchedulingLEDs
+	// OpCodeDigitLEDsRaw ...
+	OpCodeDigitLEDsRaw
+	// OpCodeDigitLEDsASCII ...
+	OpCodeDigitLEDsASCII
+	// OpCodeButtons ...
+	OpCodeButtons
+	// Missing op-code.
+	_
+	// OpCodeSchedule ...
+	OpCodeSchedule
+	// OpCodeSetDayTime ...
+	OpCodeSetDayTime
 )
 
-// BaudRate is the OIC baud rate type.
+// BaudRate is the OI baud rate type.
 type BaudRate byte
 
 const (
@@ -135,19 +169,19 @@ const (
 	ChargingStateUnknown
 )
 
-// Mode is the OIC mode type.
+// Mode is the OI mode type.
 type Mode byte
 
 const (
-	// ModeOff indicates the OIC is in "off" mode.
+	// ModeOff indicates the OI is in "off" mode.
 	ModeOff Mode = iota
-	// ModePassive indicates the OIC is in "passive" mode.
+	// ModePassive indicates the OI is in "passive" mode.
 	ModePassive
-	// ModeSafe indicates the OIC is in "safe" mode.
+	// ModeSafe indicates the OI is in "safe" mode.
 	ModeSafe
-	// ModeFull indicates the OIC is in "full" mode.
+	// ModeFull indicates the OI is in "full" mode.
 	ModeFull
-	// ModeUnknown indicates the OIC is in "unknown" mode.
+	// ModeUnknown indicates the OI is in "unknown" mode.
 	ModeUnknown
 )
 
@@ -159,17 +193,17 @@ type Note struct {
 	Duration uint8
 }
 
-// Roomba defines the required behavior of an iRobot Roomba vacuum cleaner OIC.
+// Roomba defines the required behavior of an iRobot Roomba vacuum cleaner OI.
 type Roomba interface {
-	// Start starts the OIC.
+	// Start starts the OI.
 	Start() error
-	// SetBaud sets the baud rate of the OIC.
+	// SetBaud sets the baud rate of the OI.
 	SetBaud(baudRate BaudRate) error
-	// Safe puts the OIC in safe mode.
+	// Safe puts the OI in safe mode.
 	Safe() error
-	// Full puts the OIC in full mode.
+	// Full puts the OI in full mode.
 	Full() error
-	// Power powers off the OIC.
+	// Power powers off the OI.
 	Power() error
 	// Spot starts a spot cleaning.
 	Spot() error
