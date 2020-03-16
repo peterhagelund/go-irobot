@@ -85,6 +85,15 @@ func TestStart(t *testing.T) {
 	}
 }
 
+func TestSetBaudRate(t *testing.T) {
+	_, conn := net.Pipe()
+	roomba, _ := NewRoomba(conn)
+	if err := roomba.SetBaud(BaudRate57600); err == nil {
+		t.Error("set baud not rejected on non-port connection")
+	}
+
+}
+
 func TestSafe(t *testing.T) {
 	dummy, conn := net.Pipe()
 	roomba, _ := NewRoomba(conn)

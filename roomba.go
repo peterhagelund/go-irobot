@@ -25,6 +25,8 @@ import (
 	"fmt"
 	"net"
 	"time"
+
+	"github.com/peterhagelund/go-serial"
 )
 
 // OpCode is the OI command op-code type.
@@ -256,6 +258,21 @@ type roomba struct {
 	lastWrite time.Time
 }
 
+var baudRateMap = map[BaudRate]serial.BaudRate{
+	BaudRate300:    serial.BaudRate300,
+	BaudRate600:    serial.BaudRate600,
+	BaudRate1200:   serial.BaudRate1200,
+	BaudRate2400:   serial.BaudRate2400,
+	BaudRate4800:   serial.BaudRate4800,
+	BaudRate9600:   serial.BaudRate9600,
+	BaudRate14400:  serial.BaudRate14400,
+	BaudRate19200:  serial.BaudRate19200,
+	BaudRate28800:  serial.BaudRate28800,
+	BaudRate38400:  serial.BaudRate38400,
+	BaudRate57600:  serial.BaudRate57600,
+	BaudRate115200: serial.BaudRate115200,
+}
+
 // NewNote creates and returns a new Note with the specified number and duration.
 func NewNote(number uint8, duration time.Duration) (*Note, error) {
 	if number < 31 || number > 127 {
@@ -289,10 +306,23 @@ func (r *roomba) Start() error {
 }
 
 func (r *roomba) SetBaud(baudRate BaudRate) error {
+	conn, ok := r.conn.(serial.PortConn)
+	if !ok {
+		return errors.New("connection not serial")
+	}
+	b, ok := baudRateMap[baudRate]
+	if !ok {
+		return errors.New("invalid baud rate")
+	}
 	data := make([]byte, 12)
 	data[0] = byte(OpCodeBaud)
 	data[1] = byte(baudRate)
-	return r.write(data)
+	if err := r.write(data); err != nil {
+		return err
+	}
+	// Allow Roomba to switch baud rate
+	time.Sleep(100 * time.Millisecond)
+	return conn.Port().SetBaudRate(b)
 }
 
 func (r *roomba) Safe() error {
