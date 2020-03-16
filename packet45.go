@@ -20,70 +20,43 @@
 
 package irobot
 
-import (
-	"fmt"
-	"reflect"
-	"testing"
-)
+import "errors"
 
-var packetSizes = map[int]int{
-	0:   26,
-	1:   10,
-	2:   6,
-	3:   10,
-	4:   14,
-	5:   12,
-	6:   52,
-	19:  2,
-	20:  2,
-	22:  2,
-	23:  2,
-	25:  2,
-	26:  2,
-	27:  2,
-	28:  2,
-	29:  2,
-	30:  2,
-	31:  2,
-	33:  2,
-	39:  2,
-	40:  2,
-	41:  2,
-	42:  2,
-	43:  2,
-	44:  2,
-	46:  2,
-	47:  2,
-	48:  2,
-	49:  2,
-	50:  2,
-	51:  2,
-	100: 80,
-	101: 28,
-	106: 12,
-	107: 9,
+// Packet45 is an encapsulation of a Packet with id 45.
+type Packet45 struct {
+	LightBumperLeft        bool
+	LightBumperFrontLeft   bool
+	LightBumperCenterLeft  bool
+	LightBumperCenterRight bool
+	LightBumperFrontRight  bool
+	LightBumperRight       bool
 }
 
-func TestNewPacket(t *testing.T) {
-	for id := range packetFacory {
-		packet, err := NewPacket(id)
-		if err != nil {
-			t.Error(err)
-		}
-		if packet.ID() != id {
-			t.Errorf("expected packet %T to have id %d, got %d", packet, id, packet.ID())
-		}
-		size, ok := packetSizes[id]
-		if !ok {
-			size = 1
-		}
-		if packet.Size() != size {
-			t.Errorf("expected packet %T to have size %d, got %d", packet, size, packet.Size())
-		}
-		expected := fmt.Sprintf("*irobot.Packet%d", id)
-		actual := reflect.TypeOf(packet).String()
-		if actual != expected {
-			t.Errorf("expected packet %T to have name '%s', got '%s'", packet, expected, actual)
-		}
+// ID returns the id.
+func (packet *Packet45) ID() int {
+	return 45
+}
+
+// Size returns the size.
+func (packet *Packet45) Size() int {
+	return 1
+}
+
+// Extract extracts the information in the specified data starting at the specified offset.
+func (packet *Packet45) Extract(data []byte, offset int) error {
+	if offset+packet.Size() > len(data) {
+		return errors.New("packet exceeds data length")
 	}
+	bits := data[offset]
+	packet.LightBumperLeft = bits&0b00000001 != 0b00000000
+	packet.LightBumperFrontLeft = bits&0b00000010 != 0b00000000
+	packet.LightBumperCenterLeft = bits&0b00000100 != 0b00000000
+	packet.LightBumperCenterRight = bits&0b00001000 != 0b00000000
+	packet.LightBumperFrontRight = bits&0b00010000 != 0b00000000
+	packet.LightBumperRight = bits&0b00100000 != 0b00000000
+	return nil
+}
+
+func makePacket45() Packet {
+	return &Packet45{}
 }

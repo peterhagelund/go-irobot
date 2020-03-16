@@ -20,70 +20,30 @@
 
 package irobot
 
-import (
-	"fmt"
-	"reflect"
-	"testing"
-)
+import "testing"
 
-var packetSizes = map[int]int{
-	0:   26,
-	1:   10,
-	2:   6,
-	3:   10,
-	4:   14,
-	5:   12,
-	6:   52,
-	19:  2,
-	20:  2,
-	22:  2,
-	23:  2,
-	25:  2,
-	26:  2,
-	27:  2,
-	28:  2,
-	29:  2,
-	30:  2,
-	31:  2,
-	33:  2,
-	39:  2,
-	40:  2,
-	41:  2,
-	42:  2,
-	43:  2,
-	44:  2,
-	46:  2,
-	47:  2,
-	48:  2,
-	49:  2,
-	50:  2,
-	51:  2,
-	100: 80,
-	101: 28,
-	106: 12,
-	107: 9,
-}
-
-func TestNewPacket(t *testing.T) {
-	for id := range packetFacory {
-		packet, err := NewPacket(id)
-		if err != nil {
-			t.Error(err)
-		}
-		if packet.ID() != id {
-			t.Errorf("expected packet %T to have id %d, got %d", packet, id, packet.ID())
-		}
-		size, ok := packetSizes[id]
-		if !ok {
-			size = 1
-		}
-		if packet.Size() != size {
-			t.Errorf("expected packet %T to have size %d, got %d", packet, size, packet.Size())
-		}
-		expected := fmt.Sprintf("*irobot.Packet%d", id)
-		actual := reflect.TypeOf(packet).String()
-		if actual != expected {
-			t.Errorf("expected packet %T to have name '%s', got '%s'", packet, expected, actual)
-		}
+func TestExtract46(t *testing.T) {
+	packet := makePacket46().(*Packet46)
+	data := make([]byte, 2)
+	data[0] = 0x00
+	data[1] = 0x00
+	if err := packet.Extract(data, 0); err != nil {
+		t.Error(err)
+	}
+	if packet.LightBumpLeftSignal != 0 {
+		t.Errorf("LightBumpLeftSignal has wrong value")
+	}
+	data[0] = 0x0f
+	data[1] = 0xff
+	if err := packet.Extract(data, 0); err != nil {
+		t.Error(err)
+	}
+	if packet.LightBumpLeftSignal != 4095 {
+		t.Errorf("LightBumpLeftSignal has wrong value")
+	}
+	data[0] = 0x10
+	data[1] = 0x00
+	if err := packet.Extract(data, 0); err == nil {
+		t.Error("invalid light bump left signal not rejected")
 	}
 }
