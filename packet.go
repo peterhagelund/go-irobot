@@ -88,6 +88,8 @@ var packetFacory = map[int]func() Packet{
 	49:  makePacket49,
 	50:  makePacket50,
 	51:  makePacket51,
+	52:  makePacket52,
+	53:  makePacket53,
 	100: makePacket100,
 	101: makePacket101,
 	106: makePacket106,
