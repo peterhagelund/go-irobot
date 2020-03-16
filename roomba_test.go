@@ -283,6 +283,36 @@ func TestMotors(t *testing.T) {
 	}
 }
 
+func TestLEDs(t *testing.T) {
+	dummy, conn := net.Pipe()
+	roomba, _ := NewRoomba(conn)
+	data := make([]byte, 4)
+	go func() {
+		if err := roomba.LEDs(50, 100, true, false, true, false); err != nil {
+			t.Error(err)
+		}
+	}()
+	n, err := dummy.Read(data)
+	if err != nil {
+		t.Error(err)
+	}
+	if n != 4 {
+		t.Errorf("expected 4 bytes, got %d", n)
+	}
+	if data[0] != 139 {
+		t.Errorf("expected LEDs op-code, got %d", data[0])
+	}
+	if data[1] != 0b00000101 {
+		t.Errorf("expected LED bits 0b00001010, got 0b%08b", data[1])
+	}
+	if data[2] != 50 {
+		t.Errorf("expected color 50, got %d", data[2])
+	}
+	if data[3] != 100 {
+		t.Errorf("expected intensity 100, got %d", data[3])
+	}
+}
+
 func TestMotorsPWM(t *testing.T) {
 	dummy, conn := net.Pipe()
 	roomba, _ := NewRoomba(conn)

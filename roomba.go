@@ -237,6 +237,8 @@ type Roomba interface {
 	Drive(velocity int16, radius int16) error
 	// Motors controls the brush and vacuum motors.
 	Motors(mainBrush MainBrush, sideBrush SideBrush, vacuum Vacuum) error
+	// LEDs controls the various Roomba LEDs.
+	LEDs(color uint8, intensity uint8, debris bool, spot bool, dock bool, checkRobot bool) error
 	// Song defines a song.
 	Song(number uint8, note []Note) error
 	// Play instructs the Roomba to play the specified song.
@@ -402,6 +404,28 @@ func (r *roomba) Motors(mainBrush MainBrush, sideBrush SideBrush, vacuum Vacuum)
 		bits |= 0b00000010
 	}
 	data[1] = bits
+	return r.write(data)
+}
+
+func (r *roomba) LEDs(color uint8, intensity uint8, debris bool, spot bool, dock bool, checkRobot bool) error {
+	data := make([]byte, 4)
+	data[0] = byte(OpCodeLEDs)
+	var bits byte = 0b00000000
+	if debris {
+		bits |= 0b00000001
+	}
+	if spot {
+		bits |= 0b00000010
+	}
+	if dock {
+		bits |= 0b00000100
+	}
+	if checkRobot {
+		bits |= 0b00001000
+	}
+	data[1] = bits
+	data[2] = color
+	data[3] = intensity
 	return r.write(data)
 }
 
