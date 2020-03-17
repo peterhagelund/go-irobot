@@ -38,18 +38,23 @@ func TestExtract107(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	// Validate Packet54
 	if packet.Packet54.LeftMotorCurrent != -4000 {
 		t.Errorf("LeftMotorCurrent has wrong value")
 	}
+	// Validate Packet55
 	if packet.Packet55.RightMotorCurrent != 4000 {
 		t.Errorf("RightMotorCurrent has wrong value")
 	}
+	// Validate Packet56
 	if packet.Packet56.MainBrushMotorCurrent != -3000 {
 		t.Errorf("MainBrushMotorCurrent has wrong value")
 	}
+	// Validate Packet57
 	if packet.Packet57.SideBrushMotorCurrent != 3000 {
 		t.Errorf("SideBrushMotorCurrent has wrong value")
 	}
+	// Validate Packet58
 	if packet.Packet58.Stasis != true {
 		t.Errorf("Stasis has wrong value")
 	}
