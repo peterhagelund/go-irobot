@@ -25,8 +25,32 @@ import "testing"
 func TestExtract107(t *testing.T) {
 	packet := makePacket107().(*Packet107)
 	data := make([]byte, 9)
+	data[0] = 0xf0 // Packet54
+	data[1] = 0x60 // -
+	data[2] = 0x0f // Packet55
+	data[3] = 0xa0 // -
+	data[4] = 0xf4 // Packet56
+	data[5] = 0x48 // -
+	data[6] = 0x0b // Packet57
+	data[7] = 0xb8 // -
+	data[8] = 0x01 // Packet58
 	err := packet.Extract(data, 0)
 	if err != nil {
 		t.Error(err)
+	}
+	if packet.Packet54.LeftMotorCurrent != -4000 {
+		t.Errorf("LeftMotorCurrent has wrong value")
+	}
+	if packet.Packet55.RightMotorCurrent != 4000 {
+		t.Errorf("RightMotorCurrent has wrong value")
+	}
+	if packet.Packet56.MainBrushMotorCurrent != -3000 {
+		t.Errorf("MainBrushMotorCurrent has wrong value")
+	}
+	if packet.Packet57.SideBrushMotorCurrent != 3000 {
+		t.Errorf("SideBrushMotorCurrent has wrong value")
+	}
+	if packet.Packet58.Stasis != true {
+		t.Errorf("Stasis has wrong value")
 	}
 }
