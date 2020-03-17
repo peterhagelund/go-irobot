@@ -25,16 +25,20 @@ import "testing"
 func TestExtract4(t *testing.T) {
 	packet := makePacket4().(*Packet4)
 	data := make([]byte, 14)
-	data[0] = 0x03 // Packet27
-	data[1] = 0xdb // -
-	data[2] = 0x0d // Packet28
-	data[3] = 0x80 // -
-	data[4] = 0x09 // Packet29
-	data[5] = 0x29 // -
-	data[6] = 0x08 // Packet30
-	data[7] = 0xae // -
-	data[8] = 0x04 // Packet30
-	data[9] = 0x57 // -
+	data[0] = 0x03        // Packet27
+	data[1] = 0xdb        // -
+	data[2] = 0x0d        // Packet28
+	data[3] = 0x80        // -
+	data[4] = 0x09        // Packet29
+	data[5] = 0x29        // -
+	data[6] = 0x08        // Packet30
+	data[7] = 0xae        // -
+	data[8] = 0x04        // Packet31
+	data[9] = 0x57        // -
+	data[10] = 42         // Packet32
+	data[11] = 0x12       // Packet33
+	data[12] = 0x34       // -
+	data[13] = 0b00000010 // Packet34
 	err := packet.Extract(data, 0)
 	if err != nil {
 		t.Error(err)
@@ -58,5 +62,20 @@ func TestExtract4(t *testing.T) {
 	// Validate Packet31
 	if packet.Packet31.CliffRightSignal != 1111 {
 		t.Error("CliffFrontRightSignal has wrong value")
+	}
+	// Validate Packet32
+	if packet.Packet32.UnusedByte != 42 {
+		t.Errorf("UnusedByte has wrong value")
+	}
+	// Validate Packet33
+	if packet.Packet33.UnusedWord != 4660 {
+		t.Errorf("UnusedWord has wrong value")
+	}
+	// Validate Packet34
+	if packet.Packet34.InternalCharger != false {
+		t.Errorf("InternalCharger has wrong value")
+	}
+	if packet.Packet34.HomeBase != true {
+		t.Errorf("HomeBase has wrong value")
 	}
 }
