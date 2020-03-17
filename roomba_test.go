@@ -47,14 +47,21 @@ func TestNewNote(t *testing.T) {
 	if note.Duration != 192 {
 		t.Error("Duration is invalid")
 	}
-	_, err = NewNote(31, 4000*time.Millisecond)
-	if err == nil {
+	if _, err := NewNote(4, 3000*time.Millisecond); err == nil {
+		t.Error("invalid number not rejected")
+	}
+	if _, err := NewNote(31, 4000*time.Millisecond); err == nil {
 		t.Error("invalid duration not rejected")
 	}
 }
 
 func TestNewRoomba(t *testing.T) {
-	_, conn := net.Pipe()
+	if _, err := NewRoomba(nil); err == nil {
+		t.Error("nil conn not rejected")
+	}
+	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
 	roomba, err := NewRoomba(conn)
 	if err != nil {
 		t.Error(err)
@@ -66,6 +73,8 @@ func TestNewRoomba(t *testing.T) {
 
 func TestStart(t *testing.T) {
 	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
 	roomba, _ := NewRoomba(conn)
 	data := make([]byte, 1)
 	go func() {
@@ -86,9 +95,11 @@ func TestStart(t *testing.T) {
 }
 
 func TestSetBaudRate(t *testing.T) {
-	_, conn := net.Pipe()
+	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
 	roomba, _ := NewRoomba(conn)
-	if err := roomba.SetBaud(BaudRate57600); err == nil {
+	if err := roomba.SetBaudRate(BaudRate57600); err == nil {
 		t.Error("set baud not rejected on non-port connection")
 	}
 
@@ -96,6 +107,8 @@ func TestSetBaudRate(t *testing.T) {
 
 func TestSafe(t *testing.T) {
 	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
 	roomba, _ := NewRoomba(conn)
 	data := make([]byte, 1)
 	go func() {
@@ -117,6 +130,8 @@ func TestSafe(t *testing.T) {
 
 func TestFull(t *testing.T) {
 	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
 	roomba, _ := NewRoomba(conn)
 	data := make([]byte, 1)
 	go func() {
@@ -138,6 +153,8 @@ func TestFull(t *testing.T) {
 
 func TestPower(t *testing.T) {
 	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
 	roomba, _ := NewRoomba(conn)
 	data := make([]byte, 1)
 	go func() {
@@ -159,6 +176,8 @@ func TestPower(t *testing.T) {
 
 func TestSpot(t *testing.T) {
 	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
 	roomba, _ := NewRoomba(conn)
 	data := make([]byte, 1)
 	go func() {
@@ -180,6 +199,8 @@ func TestSpot(t *testing.T) {
 
 func TestClean(t *testing.T) {
 	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
 	roomba, _ := NewRoomba(conn)
 	data := make([]byte, 1)
 	go func() {
@@ -201,6 +222,8 @@ func TestClean(t *testing.T) {
 
 func TestMax(t *testing.T) {
 	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
 	roomba, _ := NewRoomba(conn)
 	data := make([]byte, 1)
 	go func() {
@@ -222,6 +245,8 @@ func TestMax(t *testing.T) {
 
 func TestDrive(t *testing.T) {
 	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
 	roomba, _ := NewRoomba(conn)
 	if err := roomba.Drive(-700, 0); err == nil {
 		t.Fatal("invalid velocity not rejected")
@@ -261,6 +286,8 @@ func TestDrive(t *testing.T) {
 
 func TestMotors(t *testing.T) {
 	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
 	roomba, _ := NewRoomba(conn)
 	data := make([]byte, 2)
 	go func() {
@@ -286,6 +313,8 @@ func TestMotors(t *testing.T) {
 func TestLEDs(t *testing.T) {
 	dummy, conn := net.Pipe()
 	roomba, _ := NewRoomba(conn)
+	defer dummy.Close()
+	defer conn.Close()
 	data := make([]byte, 4)
 	go func() {
 		if err := roomba.LEDs(50, 100, true, false, true, false); err != nil {
@@ -313,8 +342,99 @@ func TestLEDs(t *testing.T) {
 	}
 }
 
+func TestSetSong(t *testing.T) {
+	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
+	roomba, _ := NewRoomba(conn)
+	var notes = make([]*Note, 1)
+	notes[0], _ = NewNote(31, 1000*time.Millisecond)
+	if err := roomba.SetSong(5, notes); err == nil {
+		t.Fatal("invalid song number not rejected")
+	}
+	notes = make([]*Note, 0)
+	if err := roomba.SetSong(1, notes); err == nil {
+		t.Fatal("empty notes not rejected")
+	}
+	notes = make([]*Note, 17)
+	for i := 0; i < len(notes); i++ {
+		notes[i], _ = NewNote(31, 1000*time.Millisecond)
+	}
+	if err := roomba.SetSong(1, notes); err == nil {
+		t.Fatal("too long notes not rejected")
+	}
+	notes = make([]*Note, 2)
+	notes[0], _ = NewNote(31, 1000*time.Millisecond)
+	notes[1], _ = NewNote(32, 1500*time.Millisecond)
+	data := make([]byte, 7) // 1 + 1 + 1 + 2 * 2
+	go func() {
+		if err := roomba.SetSong(1, notes); err != nil {
+			t.Error(err)
+		}
+	}()
+	n, err := dummy.Read(data)
+	if err != nil {
+		t.Error(err)
+	}
+	if n != 7 {
+		t.Errorf("expected 7 bytes, got %d", n)
+	}
+	if data[0] != 140 {
+		t.Errorf("expected song op-code, got %d", data[0])
+	}
+	if data[1] != 1 {
+		t.Errorf("expected song number 1, got %d", data[1])
+	}
+	if data[2] != 2 {
+		t.Errorf("expected song length 2, got %d", data[2])
+	}
+	if data[3] != 31 {
+		t.Errorf("expected note 31, got %d", data[3])
+	}
+	if data[4] != 64 {
+		t.Errorf("expected duration 64, got %d", data[3])
+	}
+	if data[5] != 32 {
+		t.Errorf("expected note 31, got %d", data[5])
+	}
+	if data[6] != 96 {
+		t.Errorf("expected duration 96, got %d", data[3])
+	}
+}
+
+func TestPlay(t *testing.T) {
+	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
+	roomba, _ := NewRoomba(conn)
+	if err := roomba.Play(5); err == nil {
+		t.Fatal("invalid song number not not rejected")
+	}
+	data := make([]byte, 2)
+	go func() {
+		if err := roomba.Play(2); err != nil {
+			t.Error(err)
+		}
+	}()
+	n, err := dummy.Read(data)
+	if err != nil {
+		t.Error(err)
+	}
+	if n != 2 {
+		t.Errorf("expected 2 bytes, got %d", n)
+	}
+	if data[0] != 141 {
+		t.Errorf("expected play op-code, got %d", data[0])
+	}
+	if data[1] != 2 {
+		t.Errorf("expected song number 2, got %d", data[1])
+	}
+}
+
 func TestMotorsPWM(t *testing.T) {
 	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
 	roomba, _ := NewRoomba(conn)
 	if err := roomba.MotorsPWM(-128, 0, 0); err == nil {
 		t.Fatal("invalid main brush PWM not rejected")
@@ -354,6 +474,8 @@ func TestMotorsPWM(t *testing.T) {
 
 func TestDriveDirect(t *testing.T) {
 	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
 	roomba, _ := NewRoomba(conn)
 	if err := roomba.DriveDirect(-600, 200); err == nil {
 		t.Fatal("invalid left velocity not rejected")
@@ -393,6 +515,8 @@ func TestDriveDirect(t *testing.T) {
 
 func TestDrivePWM(t *testing.T) {
 	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
 	roomba, _ := NewRoomba(conn)
 	if err := roomba.DrivePWM(-300, 200); err == nil {
 		t.Fatal("invalid left wheel PWM not rejected")

@@ -219,8 +219,8 @@ type Note struct {
 type Roomba interface {
 	// Start starts the OI.
 	Start() error
-	// SetBaud sets the baud rate of the OI.
-	SetBaud(baudRate BaudRate) error
+	// SetBaudRate sets the baud rate of the OI.
+	SetBaudRate(baudRate BaudRate) error
 	// Safe puts the OI in safe mode.
 	Safe() error
 	// Full puts the OI in full mode.
@@ -239,8 +239,8 @@ type Roomba interface {
 	Motors(mainBrush MainBrush, sideBrush SideBrush, vacuum Vacuum) error
 	// LEDs controls the various Roomba LEDs.
 	LEDs(color uint8, intensity uint8, debris bool, spot bool, dock bool, checkRobot bool) error
-	// Song defines a song.
-	Song(number uint8, note []Note) error
+	// SetSong defines a song.
+	SetSong(number uint8, note []*Note) error
 	// Play instructs the Roomba to play the specified song.
 	Play(number uint8) error
 	// Sensors requests a sensor value packet from the Roomba.
@@ -307,7 +307,7 @@ func (r *roomba) Start() error {
 	return r.write(data)
 }
 
-func (r *roomba) SetBaud(baudRate BaudRate) error {
+func (r *roomba) SetBaudRate(baudRate BaudRate) error {
 	conn, ok := r.conn.(serial.PortConn)
 	if !ok {
 		return errors.New("connection not serial")
@@ -429,7 +429,7 @@ func (r *roomba) LEDs(color uint8, intensity uint8, debris bool, spot bool, dock
 	return r.write(data)
 }
 
-func (r *roomba) Song(number uint8, notes []Note) error {
+func (r *roomba) SetSong(number uint8, notes []*Note) error {
 	if number > 4 {
 		return fmt.Errorf("invalid song number (%d)", number)
 	}
