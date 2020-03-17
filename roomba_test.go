@@ -431,6 +431,135 @@ func TestPlay(t *testing.T) {
 	}
 }
 
+func TestSensorsSimple(t *testing.T) {
+	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
+	roomba, _ := NewRoomba(conn)
+	if _, err := roomba.Sensors(111); err == nil {
+		t.Fatal("invalid packet id not rejected")
+	}
+	c := make(chan int)
+	go func() {
+		data := make([]byte, 2)
+		data[0] = 0x3e
+		data[1] = 0x80
+		if _, err := dummy.Write(data); err != nil {
+			t.Error(err)
+		}
+		c <- 1
+	}()
+	data := make([]byte, 2)
+	go func() {
+		packet, err := roomba.Sensors(22)
+		if err != nil {
+			t.Error(err)
+		}
+		packet22 := packet.(*Packet22)
+		if packet22.Voltage != 16000 {
+			t.Errorf("expected voltage 16000, got 0x%02x", packet22.Voltage)
+		}
+		c <- 2
+	}()
+	n, err := dummy.Read(data)
+	if err != nil {
+		t.Error(err)
+	}
+	if n != 2 {
+		t.Errorf("expected 2 bytes, got %d", n)
+	}
+	if data[0] != 142 {
+		t.Errorf("expected sensors op-code, got %d", data[0])
+	}
+	if data[1] != 22 {
+		t.Errorf("expected packet id 22, got 0x%02x", data[1])
+	}
+	<-c
+	<-c
+}
+
+func TestSensorsGroup(t *testing.T) {
+	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
+	roomba, _ := NewRoomba(conn)
+	c := make(chan int)
+	go func() {
+		data := make([]byte, 6)
+		data[0] = 0x40       // Packet17
+		data[1] = 0b00000100 // Packet18
+		data[2] = 0x30       // Packet19
+		data[3] = 0x39       // -
+		data[4] = 0xfc       // Packet20
+		data[5] = 0x19       // -
+		if _, err := dummy.Write(data); err != nil {
+			t.Error(err)
+		}
+		c <- 1
+	}()
+	data := make([]byte, 2)
+	go func() {
+		packet, err := roomba.Sensors(2)
+		if err != nil {
+			t.Error(err)
+		}
+		packet2 := packet.(*Packet2)
+		// Validate Packet17
+		if packet2.Packet17.InfraredCharacterOmni != 0x40 {
+			t.Error("InfraredCharacterOmni has wrong value")
+		}
+		// Validate Packet18
+		if packet2.Packet18.Clean != false {
+			t.Error("Clean has wrong value")
+		}
+		if packet2.Packet18.Spot != false {
+			t.Error("Spot has wrong value")
+		}
+		if packet2.Packet18.Dock != true {
+			t.Error("Dock has wrong value")
+		}
+		if packet2.Packet18.Minute != false {
+			t.Error("Minute has wrong value")
+		}
+		if packet2.Packet18.Hour != false {
+			t.Error("Hour has wrong value")
+		}
+		if packet2.Packet18.Day != false {
+			t.Error("Day has wrong value")
+		}
+		if packet2.Packet18.Schedule != false {
+			t.Error("Schedule has wrong value")
+		}
+		if packet2.Packet18.Clock != false {
+			t.Error("Clock has wrong value")
+		}
+		// Validate Packet19
+		if packet2.Packet19.Distance != 12345 {
+			t.Error("Distance has wrong value")
+		}
+		// Validate Packet20
+		if packet2.Packet20.Angle != -999 {
+			t.Error("Angle has wrong value")
+		}
+		c <- 2
+	}()
+	n, err := dummy.Read(data)
+	if err != nil {
+		t.Error(err)
+	}
+	if n != 2 {
+		t.Errorf("expected 2 bytes, got %d", n)
+	}
+	if data[0] != 142 {
+		t.Errorf("expected sensors op-code, got %d", data[0])
+	}
+	if data[1] != 2 {
+		t.Errorf("expected packet id 2, got 0x%02x", data[1])
+	}
+	<-c
+	<-c
+}
+
 func TestMotorsPWM(t *testing.T) {
 	dummy, conn := net.Pipe()
 	defer dummy.Close()

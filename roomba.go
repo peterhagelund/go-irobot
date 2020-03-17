@@ -258,6 +258,7 @@ type Roomba interface {
 type roomba struct {
 	conn      net.Conn
 	lastWrite time.Time
+	lastRead  time.Time
 }
 
 var baudRateMap = map[BaudRate]serial.BaudRate{
@@ -298,6 +299,7 @@ func NewRoomba(conn net.Conn) (Roomba, error) {
 	return &roomba{
 		conn:      conn,
 		lastWrite: time.Now(),
+		lastRead:  time.Now(),
 	}, nil
 }
 
@@ -476,11 +478,17 @@ func (r *roomba) Sensors(id int) (Packet, error) {
 }
 
 func (r *roomba) UpdateSensors(packet Packet) error {
-	// TODO
-	// send sensor op-code
-	// read sensor data
-	// extract
-	return nil
+	data := make([]byte, 2)
+	data[0] = byte(OpCodeSensors)
+	data[1] = byte(packet.ID())
+	if err := r.write(data); err != nil {
+		return err
+	}
+	data = make([]byte, packet.Size())
+	if err := r.read(data); err != nil {
+		return err
+	}
+	return packet.Extract(data, 0)
 }
 
 func (r *roomba) MotorsPWM(mainBrushPWM int8, sideBrushPWM int8, vacuumPWM uint8) error {
@@ -527,6 +535,22 @@ func (r *roomba) DrivePWM(leftWheelPWM int16, rightWheelPWM int16) error {
 	data[1], data[2] = int16ToBytes(rightWheelPWM)
 	data[3], data[4] = int16ToBytes(leftWheelPWM)
 	return r.write(data)
+}
+
+func (r *roomba) read(data []byte) error {
+	duration := time.Now().Sub(r.lastWrite)
+	if duration < 50*time.Millisecond {
+		time.Sleep(duration)
+	}
+	n, err := r.conn.Read(data)
+	if err != nil {
+		return err
+	}
+	r.lastRead = time.Now()
+	if n < len(data) {
+		return fmt.Errorf("incomplete read (%d)", n)
+	}
+	return nil
 }
 
 func (r *roomba) write(data []byte) error {
