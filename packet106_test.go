@@ -25,8 +25,44 @@ import "testing"
 func TestExtract106(t *testing.T) {
 	packet := makePacket106().(*Packet106)
 	data := make([]byte, 12)
+	data[0] = 0x03  // Packet46
+	data[1] = 0x78  // -
+	data[2] = 0x03  // Packet47
+	data[3] = 0xe7  // -
+	data[4] = 0x03  // Packet48
+	data[5] = 0xf2  // -
+	data[6] = 0x04  // Packet49
+	data[7] = 0x57  // -
+	data[8] = 0x04  // Packet50
+	data[9] = 0xbc  // -
+	data[10] = 0x05 // Packet51
+	data[11] = 0x21 // -
 	err := packet.Extract(data, 0)
 	if err != nil {
 		t.Error(err)
+	}
+	// Validate Packet46
+	if packet.Packet46.LightBumpLeftSignal != 888 {
+		t.Errorf("LightBumpLeftSignal has wrong value")
+	}
+	// Validate Packet47
+	if packet.Packet47.LightBumpFrontLeftSignal != 999 {
+		t.Errorf("LightBumpFrontLeftSignal has wrong value")
+	}
+	// Validate Packet48
+	if packet.Packet48.LightBumpCenterLeftSignal != 1010 {
+		t.Errorf("LightBumpCenterLeftSignal has wrong value")
+	}
+	// Validate Packet49
+	if packet.Packet49.LightBumpCenterRightSignal != 1111 {
+		t.Errorf("LightBumpCenterRightSignal has wrong value")
+	}
+	// Validate Packet50
+	if packet.Packet50.LightBumpFrontRightSignal != 1212 {
+		t.Errorf("LightBumpFrontRightSignal has wrong value")
+	}
+	// Validate Packet51
+	if packet.Packet51.LightBumpRightSignal != 1313 {
+		t.Errorf("LightBumpRightSignal has wrong value")
 	}
 }

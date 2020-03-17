@@ -51,6 +51,61 @@ func TestExtract100(t *testing.T) {
 	data[23] = 0x88       // -
 	data[24] = 0x27       // Packet26
 	data[25] = 0x10       // -
+	data[26] = 0x03       // Packet27
+	data[27] = 0xdb       // -
+	data[28] = 0x0d       // Packet28
+	data[29] = 0x80       // -
+	data[30] = 0x09       // Packet29
+	data[31] = 0x29       // -
+	data[32] = 0x08       // Packet30
+	data[33] = 0xae       // -
+	data[34] = 0x04       // Packet31
+	data[35] = 0x57       // -
+	data[36] = 42         // Packet32
+	data[37] = 0x12       // Packet33
+	data[38] = 0x34       // -
+	data[39] = 0b00000010 // Packet34
+	data[40] = 2          // Packet35
+	data[41] = 4          // Packet36
+	data[42] = 1          // Packet37
+	data[43] = 42         // Packet38
+	data[44] = 0xfe       // Packet39
+	data[45] = 0x0c       // -
+	data[46] = 0xf8       // Packet40
+	data[47] = 0x30       // -
+	data[48] = 0x01       // Packet41
+	data[49] = 0xf4       // -
+	data[50] = 0xfe       // Packet42
+	data[51] = 0x0c       // -
+	data[52] = 0x12       // Packet43
+	data[53] = 0x34       // -
+	data[54] = 0x23       // Packet44
+	data[55] = 0x45       // -
+	data[56] = 0b00010101 // Packet45
+	data[57] = 0x03       // Packet46
+	data[58] = 0x78       // -
+	data[59] = 0x03       // Packet47
+	data[60] = 0xe7       // -
+	data[61] = 0x03       // Packet48
+	data[62] = 0xf2       // -
+	data[63] = 0x04       // Packet49
+	data[64] = 0x57       // -
+	data[65] = 0x04       // Packet50
+	data[66] = 0xbc       // -
+	data[67] = 0x05       // Packet51
+	data[68] = 0x21       // -
+	data[69] = 42         // Packet52
+	data[70] = 13         // Packet53
+	data[71] = 0xf8       // Packet54
+	data[72] = 0x30       // -
+	data[73] = 0x07       // Packet55
+	data[74] = 0xd0       // -
+	data[75] = 0x03       // Packet56
+	data[76] = 0xe8       // -
+	data[77] = 0xfc       // Packet57
+	data[78] = 0x18       // -
+	data[79] = 0x01       // Packet58
+
 	err := packet.Extract(data, 0)
 	if err != nil {
 		t.Error(err)
@@ -173,5 +228,151 @@ func TestExtract100(t *testing.T) {
 	// Validate Packet26
 	if packet.Packet26.BatteryCapacity != 10000 {
 		t.Error("BatteryCapacity has wrong value")
+	}
+	// Validate Packet27
+	if packet.Packet27.WallSignal != 987 {
+		t.Error("WallSignal has wrong value")
+	}
+	// Validate Packet28
+	if packet.Packet28.CliffLeftSignal != 3456 {
+		t.Error("CliffLeftSignal has wrong value")
+	}
+	// Validate Packet29
+	if packet.Packet29.CliffFrontLeftSignal != 2345 {
+		t.Error("CliffFrontLeftSignal has wrong value")
+	}
+	// Validate Packet30
+	if packet.Packet30.CliffFrontRightSignal != 2222 {
+		t.Error("CliffFrontRightSignal has wrong value")
+	}
+	// Validate Packet31
+	if packet.Packet31.CliffRightSignal != 1111 {
+		t.Error("CliffFrontRightSignal has wrong value")
+	}
+	// Validate Packet32
+	if packet.Packet32.UnusedByte != 42 {
+		t.Errorf("UnusedByte has wrong value")
+	}
+	// Validate Packet33
+	if packet.Packet33.UnusedWord != 4660 {
+		t.Errorf("UnusedWord has wrong value")
+	}
+	// Validate Packet34
+	if packet.Packet34.InternalCharger != false {
+		t.Errorf("InternalCharger has wrong value")
+	}
+	if packet.Packet34.HomeBase != true {
+		t.Errorf("HomeBase has wrong value")
+	}
+	// Validate Packet35
+	if packet.Packet35.Mode != ModeSafe {
+		t.Errorf("Mode has wrong value")
+	}
+	// Validate Packet36
+	if packet.Packet36.Song != 4 {
+		t.Errorf("Song has wrong value")
+	}
+	// Validate Packet37
+	if packet.Packet37.SongPlaying != true {
+		t.Errorf("SongPlaying has wrong value")
+	}
+	// Validate Packet38
+	if packet.Packet38.StreamPacketCount != 42 {
+		t.Errorf("StreamPacketCount has wrong value")
+	}
+	// Validate Packet39
+	if packet.Packet39.RequestedVelocity != -500 {
+		t.Errorf("RequestedVelocity has wrong value")
+	}
+	// Validate Packet40
+	if packet.Packet40.RequestedRadius != -2000 {
+		t.Errorf("RequestedRadius has wrong value")
+	}
+	// Validate Packet41
+	if packet.Packet41.RequestedRightVelocity != 500 {
+		t.Errorf("RequestedRightVelocity has wrong value")
+	}
+	// Validate Packet42
+	if packet.Packet42.RequestedLeftVelocity != -500 {
+		t.Errorf("RequestedLeftVelocity has wrong value")
+	}
+	// Validate Packet43
+	if packet.Packet43.RightEncoderCounts != 4660 {
+		t.Errorf("RightEncoderCounts has wrong value")
+	}
+	// Validate Packet44
+	if packet.Packet44.LeftEncoderCounts != 9029 {
+		t.Errorf("LeftEncoderCounts has wrong value")
+	}
+	// Validate Packet45
+	if packet.Packet45.LightBumperLeft != true {
+		t.Errorf("LightBumperLeft has wrong value")
+	}
+	if packet.Packet45.LightBumperFrontLeft != false {
+		t.Errorf("LightBumperFrontLeft has wrong value")
+	}
+	if packet.Packet45.LightBumperCenterLeft != true {
+		t.Errorf("LightBumperCenterLeft has wrong value")
+	}
+	if packet.Packet45.LightBumperCenterRight != false {
+		t.Errorf("LightBumperCenterRight has wrong value")
+	}
+	if packet.Packet45.LightBumperFrontRight != true {
+		t.Errorf("LightBumperFrontRight has wrong value")
+	}
+	if packet.Packet45.LightBumperRight != false {
+		t.Errorf("LightBumperRight has wrong value")
+	}
+	// Validate Packet46
+	if packet.Packet46.LightBumpLeftSignal != 888 {
+		t.Errorf("LightBumpLeftSignal has wrong value")
+	}
+	// Validate Packet47
+	if packet.Packet47.LightBumpFrontLeftSignal != 999 {
+		t.Errorf("LightBumpFrontLeftSignal has wrong value")
+	}
+	// Validate Packet48
+	if packet.Packet48.LightBumpCenterLeftSignal != 1010 {
+		t.Errorf("LightBumpCenterLeftSignal has wrong value")
+	}
+	// Validate Packet49
+	if packet.Packet49.LightBumpCenterRightSignal != 1111 {
+		t.Errorf("LightBumpCenterRightSignal has wrong value")
+	}
+	// Validate Packet50
+	if packet.Packet50.LightBumpFrontRightSignal != 1212 {
+		t.Errorf("LightBumpFrontRightSignal has wrong value")
+	}
+	// Validate Packet51
+	if packet.Packet51.LightBumpRightSignal != 1313 {
+		t.Errorf("LightBumpRightSignal has wrong value")
+	}
+	// Validate Packet52
+	if packet.Packet52.InfraredCharacterLeft != 42 {
+		t.Errorf("InfraredCharacterLeft has wrong value")
+	}
+	// Validate Packet53
+	if packet.Packet53.InfraredCharacterRight != 13 {
+		t.Errorf("InfraredCharacterRight has wrong value")
+	}
+	// Validate Packet54
+	if packet.Packet54.LeftMotorCurrent != -2000 {
+		t.Errorf("LeftMotorCurrent has wrong value")
+	}
+	// Validate Packet55
+	if packet.Packet55.RightMotorCurrent != 2000 {
+		t.Errorf("RightMotorCurrent has wrong value")
+	}
+	// Validate Packet56
+	if packet.Packet56.MainBrushMotorCurrent != 1000 {
+		t.Errorf("MainBrushMotorCurrent has wrong value")
+	}
+	// Validate Packet57
+	if packet.Packet57.SideBrushMotorCurrent != -1000 {
+		t.Errorf("SideBrushMotorCurrent has wrong value")
+	}
+	// Validate Packet58
+	if packet.Packet58.Stasis != true {
+		t.Errorf("Stasis has wrong value")
 	}
 }
