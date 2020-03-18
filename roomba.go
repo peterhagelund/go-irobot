@@ -107,6 +107,15 @@ const (
 	OpCodeSetDayTime
 )
 
+const (
+	// ProcessTimeDefault is the default processing time for most op-codes.
+	ProcessTimeDefault time.Duration = 50 * time.Millisecond
+	// ProcessTimeBaudRate is th processing time for changing baud rate.
+	ProcessTimeBaudRate = 100 * time.Millisecond
+	// ProcessTimeModeChange is the processing time for the op-codes that change mode.
+	ProcessTimeModeChange = 750 * time.Millisecond
+)
+
 // BaudRate is the OI baud rate type.
 type BaudRate byte
 
@@ -217,6 +226,10 @@ type Note struct {
 
 // Roomba defines the required behavior of an iRobot Roomba vacuum cleaner OI.
 type Roomba interface {
+	// Timeout returns the time out for read/write operations.
+	Timeout() time.Duration
+	// SetTimeout sets the timeout for read/write operations.
+	SetTimeout(timeout time.Duration)
 	// Start starts the OI.
 	Start() error
 	// SetBaudRate sets the baud rate of the OI.
@@ -227,6 +240,8 @@ type Roomba interface {
 	Full() error
 	// Power powers off the OI.
 	Power() error
+	// SetMode instructs teh Roomba to enter the specified mode.
+	SetMode(mode Mode) error
 	// Spot starts a spot cleaning.
 	Spot() error
 	// Clean starts a default cleaning.
@@ -257,6 +272,7 @@ type Roomba interface {
 
 type roomba struct {
 	conn      net.Conn
+	timeout   time.Duration
 	lastWrite time.Time
 	lastRead  time.Time
 }
@@ -298,15 +314,30 @@ func NewRoomba(conn net.Conn) (Roomba, error) {
 	}
 	return &roomba{
 		conn:      conn,
+		timeout:   time.Duration(0),
 		lastWrite: time.Now(),
 		lastRead:  time.Now(),
 	}, nil
 }
 
+func (r *roomba) Timeout() time.Duration {
+	return r.timeout
+}
+
+func (r *roomba) SetTimeout(timeout time.Duration) {
+	r.timeout = timeout
+	if timeout == 0 {
+		r.conn.SetDeadline(time.Time{})
+	}
+}
+
 func (r *roomba) Start() error {
 	data := make([]byte, 1)
 	data[0] = byte(OpCodeStart)
-	return r.write(data)
+	if err := r.write(data, ProcessTimeDefault); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *roomba) SetBaudRate(baudRate BaudRate) error {
@@ -321,48 +352,61 @@ func (r *roomba) SetBaudRate(baudRate BaudRate) error {
 	data := make([]byte, 12)
 	data[0] = byte(OpCodeBaud)
 	data[1] = byte(baudRate)
-	if err := r.write(data); err != nil {
+	if err := r.write(data, ProcessTimeBaudRate); err != nil {
 		return err
 	}
-	// Allow Roomba to switch baud rate
-	time.Sleep(100 * time.Millisecond)
 	return conn.Port().SetBaudRate(b)
 }
 
 func (r *roomba) Safe() error {
 	data := make([]byte, 1)
 	data[0] = byte(OpCodeSafe)
-	return r.write(data)
+	return r.write(data, ProcessTimeModeChange)
 }
 
 func (r *roomba) Full() error {
 	data := make([]byte, 1)
 	data[0] = byte(OpCodeFull)
-	return r.write(data)
+	return r.write(data, ProcessTimeModeChange)
 }
 
 func (r *roomba) Power() error {
 	data := make([]byte, 1)
 	data[0] = byte(OpCodePower)
-	return r.write(data)
+	return r.write(data, ProcessTimeModeChange)
+}
+
+func (r *roomba) SetMode(mode Mode) error {
+	switch mode {
+	case ModeOff:
+		return r.Power()
+	case ModePassive:
+		return r.Start()
+	case ModeSafe:
+		return r.Safe()
+	case ModeFull:
+		return r.Full()
+	default:
+		return errors.New("invalid mode")
+	}
 }
 
 func (r *roomba) Spot() error {
 	data := make([]byte, 1)
 	data[0] = byte(OpCodeSpot)
-	return r.write(data)
+	return r.write(data, ProcessTimeDefault)
 }
 
 func (r *roomba) Clean() error {
 	data := make([]byte, 1)
 	data[0] = byte(OpCodeClean)
-	return r.write(data)
+	return r.write(data, ProcessTimeDefault)
 }
 
 func (r *roomba) Max() error {
 	data := make([]byte, 1)
 	data[0] = byte(OpCodeMax)
-	return r.write(data)
+	return r.write(data, ProcessTimeDefault)
 }
 
 func (r *roomba) Drive(velocity int16, radius int16) error {
@@ -376,7 +420,7 @@ func (r *roomba) Drive(velocity int16, radius int16) error {
 	data[0] = byte(OpCodeDrive)
 	data[1], data[2] = int16ToBytes(velocity)
 	data[3], data[4] = int16ToBytes(radius)
-	return r.write(data)
+	return r.write(data, ProcessTimeDefault)
 }
 
 func (r *roomba) Motors(mainBrush MainBrush, sideBrush SideBrush, vacuum Vacuum) error {
@@ -406,7 +450,7 @@ func (r *roomba) Motors(mainBrush MainBrush, sideBrush SideBrush, vacuum Vacuum)
 		bits |= 0b00000010
 	}
 	data[1] = bits
-	return r.write(data)
+	return r.write(data, ProcessTimeDefault)
 }
 
 func (r *roomba) LEDs(color uint8, intensity uint8, debris bool, spot bool, dock bool, checkRobot bool) error {
@@ -428,7 +472,7 @@ func (r *roomba) LEDs(color uint8, intensity uint8, debris bool, spot bool, dock
 	data[1] = bits
 	data[2] = color
 	data[3] = intensity
-	return r.write(data)
+	return r.write(data, ProcessTimeDefault)
 }
 
 func (r *roomba) SetSong(number uint8, notes []*Note) error {
@@ -452,7 +496,7 @@ func (r *roomba) SetSong(number uint8, notes []*Note) error {
 		data[3+i*2+0] = note.Number
 		data[3+i*2+1] = note.Duration
 	}
-	return r.write(data)
+	return r.write(data, ProcessTimeDefault)
 }
 
 func (r *roomba) Play(number uint8) error {
@@ -462,7 +506,7 @@ func (r *roomba) Play(number uint8) error {
 	data := make([]byte, 2)
 	data[0] = byte(OpCodePlay)
 	data[1] = number
-	return r.write(data)
+	return r.write(data, ProcessTimeDefault)
 }
 
 func (r *roomba) Sensors(id int) (Packet, error) {
@@ -481,10 +525,11 @@ func (r *roomba) UpdateSensors(packet Packet) error {
 	data := make([]byte, 2)
 	data[0] = byte(OpCodeSensors)
 	data[1] = byte(packet.ID())
-	if err := r.write(data); err != nil {
+	if err := r.write(data, ProcessTimeDefault); err != nil {
 		return err
 	}
 	data = make([]byte, packet.Size())
+	r.lastRead = r.lastWrite
 	if err := r.read(data); err != nil {
 		return err
 	}
@@ -506,7 +551,7 @@ func (r *roomba) MotorsPWM(mainBrushPWM int8, sideBrushPWM int8, vacuumPWM uint8
 	data[1] = byte(mainBrushPWM)
 	data[2] = byte(sideBrushPWM)
 	data[3] = vacuumPWM
-	return r.write(data)
+	return r.write(data, ProcessTimeDefault)
 }
 
 func (r *roomba) DriveDirect(leftVelocity int16, rightVelocity int16) error {
@@ -520,7 +565,7 @@ func (r *roomba) DriveDirect(leftVelocity int16, rightVelocity int16) error {
 	data[0] = byte(OpCodeDriveDirect)
 	data[1], data[2] = int16ToBytes(rightVelocity)
 	data[3], data[4] = int16ToBytes(leftVelocity)
-	return r.write(data)
+	return r.write(data, ProcessTimeDefault)
 }
 
 func (r *roomba) DrivePWM(leftWheelPWM int16, rightWheelPWM int16) error {
@@ -534,13 +579,16 @@ func (r *roomba) DrivePWM(leftWheelPWM int16, rightWheelPWM int16) error {
 	data[0] = byte(OpCodeDrivePWM)
 	data[1], data[2] = int16ToBytes(rightWheelPWM)
 	data[3], data[4] = int16ToBytes(leftWheelPWM)
-	return r.write(data)
+	return r.write(data, ProcessTimeDefault)
 }
 
 func (r *roomba) read(data []byte) error {
-	duration := time.Now().Sub(r.lastWrite)
+	duration := time.Now().Sub(r.lastRead)
 	if duration < 50*time.Millisecond {
 		time.Sleep(duration)
+	}
+	if r.timeout > 0 {
+		r.conn.SetReadDeadline(time.Now().Add(r.timeout))
 	}
 	n, err := r.conn.Read(data)
 	if err != nil {
@@ -553,15 +601,19 @@ func (r *roomba) read(data []byte) error {
 	return nil
 }
 
-func (r *roomba) write(data []byte) error {
+func (r *roomba) write(data []byte, processTime time.Duration) error {
 	duration := time.Now().Sub(r.lastWrite)
 	if duration < 50*time.Millisecond {
 		time.Sleep(duration)
+	}
+	if r.timeout > 0 {
+		r.conn.SetWriteDeadline(time.Now().Add(r.timeout))
 	}
 	n, err := r.conn.Write(data)
 	if err != nil {
 		return err
 	}
+	time.Sleep(processTime)
 	r.lastWrite = time.Now()
 	if n < len(data) {
 		return fmt.Errorf("incomplete write (%d)", n)

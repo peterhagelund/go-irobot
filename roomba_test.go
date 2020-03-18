@@ -174,6 +174,32 @@ func TestPower(t *testing.T) {
 	}
 }
 
+func TestSetMode(t *testing.T) {
+	dummy, conn := net.Pipe()
+	defer dummy.Close()
+	defer conn.Close()
+	roomba, _ := NewRoomba(conn)
+	if err := roomba.SetMode(ModeUnknown); err == nil {
+		t.Fatal("set mode to unknown not rejected")
+	}
+	data := make([]byte, 1)
+	go func() {
+		if err := roomba.SetMode(ModeSafe); err != nil {
+			t.Error(err)
+		}
+	}()
+	n, err := dummy.Read(data)
+	if err != nil {
+		t.Error(err)
+	}
+	if n != 1 {
+		t.Errorf("expected 1 byte, got %d", n)
+	}
+	if data[0] != 131 {
+		t.Errorf("expected safe op-code, got %d", data[0])
+	}
+}
+
 func TestSpot(t *testing.T) {
 	dummy, conn := net.Pipe()
 	defer dummy.Close()
