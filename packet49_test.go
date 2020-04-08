@@ -28,22 +28,22 @@ func TestExtract49(t *testing.T) {
 	data[0] = 0x00
 	data[1] = 0x00
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.LightBumpCenterRightSignal != 0 {
-		t.Errorf("LightBumpCenterRightSignal has wrong value")
+		t.Fatal("LightBumpCenterRightSignal has wrong value")
 	}
 	data[0] = 0x0f
 	data[1] = 0xff
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.LightBumpCenterRightSignal != 4095 {
-		t.Errorf("LightBumpCenterRightSignal has wrong value")
+		t.Fatal("LightBumpCenterRightSignal has wrong value")
 	}
 	data[0] = 0x10
 	data[1] = 0x00
 	if err := packet.Extract(data, 0); err == nil {
-		t.Error("invalid light bump center right signal not rejected")
+		t.Fatal("invalid light bump center right signal not rejected")
 	}
 }

@@ -28,22 +28,22 @@ func TestExtract28(t *testing.T) {
 	data[0] = 0x00
 	data[1] = 0x00
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.CliffLeftSignal != 0 {
-		t.Errorf("CliffLeftSignal has wrong value")
+		t.Fatal("CliffLeftSignal has wrong value")
 	}
 	data[0] = 0x0f
 	data[1] = 0xff
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.CliffLeftSignal != 4095 {
-		t.Errorf("CliffLeftSignal has wrong value")
+		t.Fatal("CliffLeftSignal has wrong value")
 	}
 	data[0] = 0x10
 	data[1] = 0x00
 	if err := packet.Extract(data, 0); err == nil {
-		t.Error("invalid cliff left signal not rejected")
+		t.Fatal("invalid cliff left signal not rejected")
 	}
 }

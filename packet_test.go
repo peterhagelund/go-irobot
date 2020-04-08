@@ -72,22 +72,22 @@ func TestNewPacket(t *testing.T) {
 	for id := range packetFacory {
 		packet, err := NewPacket(id)
 		if err != nil {
-			t.Error(err)
+			t.Fatal(err)
 		}
 		if packet.ID() != id {
-			t.Errorf("expected packet %T to have id %d, got %d", packet, id, packet.ID())
+			t.Fatalf("expected packet %T to have id %d, got %d", packet, id, packet.ID())
 		}
 		size, ok := packetSizes[id]
 		if !ok {
 			size = 1
 		}
 		if packet.Size() != size {
-			t.Errorf("expected packet %T to have size %d, got %d", packet, size, packet.Size())
+			t.Fatalf("expected packet %T to have size %d, got %d", packet, size, packet.Size())
 		}
 		expected := fmt.Sprintf("*irobot.Packet%d", id)
 		actual := reflect.TypeOf(packet).String()
 		if actual != expected {
-			t.Errorf("expected packet %T to have name '%s', got '%s'", packet, expected, actual)
+			t.Fatalf("expected packet %T to have name '%s', got '%s'", packet, expected, actual)
 		}
 	}
 }

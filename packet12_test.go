@@ -27,16 +27,16 @@ func TestExtract12(t *testing.T) {
 	data := make([]byte, 1)
 	data[0] = 0b00000000
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.CliffRight != false {
-		t.Errorf("CliffRight has wrong value")
+		t.Fatal("CliffRight has wrong value")
 	}
 	data[0] = 0b00000001
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.CliffRight != true {
-		t.Errorf("CliffRight has wrong value")
+		t.Fatal("CliffRight has wrong value")
 	}
 }

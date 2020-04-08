@@ -27,90 +27,90 @@ func TestExtract45(t *testing.T) {
 	data := make([]byte, 1)
 	data[0] = 0b00000000
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.LightBumperLeft != false {
-		t.Errorf("LightBumperLeft has wrong value")
+		t.Fatal("LightBumperLeft has wrong value")
 	}
 	if packet.LightBumperFrontLeft != false {
-		t.Errorf("LightBumperFrontLeft has wrong value")
+		t.Fatal("LightBumperFrontLeft has wrong value")
 	}
 	if packet.LightBumperCenterLeft != false {
-		t.Errorf("LightBumperCenterLeft has wrong value")
+		t.Fatal("LightBumperCenterLeft has wrong value")
 	}
 	if packet.LightBumperCenterRight != false {
-		t.Errorf("LightBumperCenterRight has wrong value")
+		t.Fatal("LightBumperCenterRight has wrong value")
 	}
 	if packet.LightBumperFrontRight != false {
-		t.Errorf("LightBumperFrontRight has wrong value")
+		t.Fatal("LightBumperFrontRight has wrong value")
 	}
 	if packet.LightBumperRight != false {
-		t.Errorf("LightBumperRight has wrong value")
+		t.Fatal("LightBumperRight has wrong value")
 	}
 	data[0] = 0b00010101
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.LightBumperLeft != true {
-		t.Errorf("LightBumperLeft has wrong value")
+		t.Fatal("LightBumperLeft has wrong value")
 	}
 	if packet.LightBumperFrontLeft != false {
-		t.Errorf("LightBumperFrontLeft has wrong value")
+		t.Fatal("LightBumperFrontLeft has wrong value")
 	}
 	if packet.LightBumperCenterLeft != true {
-		t.Errorf("LightBumperCenterLeft has wrong value")
+		t.Fatal("LightBumperCenterLeft has wrong value")
 	}
 	if packet.LightBumperCenterRight != false {
-		t.Errorf("LightBumperCenterRight has wrong value")
+		t.Fatal("LightBumperCenterRight has wrong value")
 	}
 	if packet.LightBumperFrontRight != true {
-		t.Errorf("LightBumperFrontRight has wrong value")
+		t.Fatal("LightBumperFrontRight has wrong value")
 	}
 	if packet.LightBumperRight != false {
-		t.Errorf("LightBumperRight has wrong value")
+		t.Fatal("LightBumperRight has wrong value")
 	}
 	data[0] = 0b00101010
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.LightBumperLeft != false {
-		t.Errorf("LightBumperLeft has wrong value")
+		t.Fatal("LightBumperLeft has wrong value")
 	}
 	if packet.LightBumperFrontLeft != true {
-		t.Errorf("LightBumperFrontLeft has wrong value")
+		t.Fatal("LightBumperFrontLeft has wrong value")
 	}
 	if packet.LightBumperCenterLeft != false {
-		t.Errorf("LightBumperCenterLeft has wrong value")
+		t.Fatal("LightBumperCenterLeft has wrong value")
 	}
 	if packet.LightBumperCenterRight != true {
-		t.Errorf("LightBumperCenterRight has wrong value")
+		t.Fatal("LightBumperCenterRight has wrong value")
 	}
 	if packet.LightBumperFrontRight != false {
-		t.Errorf("LightBumperFrontRight has wrong value")
+		t.Fatal("LightBumperFrontRight has wrong value")
 	}
 	if packet.LightBumperRight != true {
-		t.Errorf("LightBumperRight has wrong value")
+		t.Fatal("LightBumperRight has wrong value")
 	}
 	data[0] = 0b00111111
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.LightBumperLeft != true {
-		t.Errorf("LightBumperLeft has wrong value")
+		t.Fatal("LightBumperLeft has wrong value")
 	}
 	if packet.LightBumperFrontLeft != true {
-		t.Errorf("LightBumperFrontLeft has wrong value")
+		t.Fatal("LightBumperFrontLeft has wrong value")
 	}
 	if packet.LightBumperCenterLeft != true {
-		t.Errorf("LightBumperCenterLeft has wrong value")
+		t.Fatal("LightBumperCenterLeft has wrong value")
 	}
 	if packet.LightBumperCenterRight != true {
-		t.Errorf("LightBumperCenterRight has wrong value")
+		t.Fatal("LightBumperCenterRight has wrong value")
 	}
 	if packet.LightBumperFrontRight != true {
-		t.Errorf("LightBumperFrontRight has wrong value")
+		t.Fatal("LightBumperFrontRight has wrong value")
 	}
 	if packet.LightBumperRight != true {
-		t.Errorf("LightBumperRight has wrong value")
+		t.Fatal("LightBumperRight has wrong value")
 	}
 }

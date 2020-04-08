@@ -32,42 +32,42 @@ func TestNewNote(t *testing.T) {
 		t.Fatal(err)
 	}
 	if note.Number != 31 {
-		t.Error("Number is invalid")
+		t.Fatal("Number is invalid")
 	}
 	if note.Duration != 32 {
-		t.Error("Duration is invalid")
+		t.Fatal("Duration is invalid")
 	}
 	note, err = NewNote(127, 3000*time.Millisecond)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if note.Number != 127 {
-		t.Error("Number is invalid")
+		t.Fatal("Number is invalid")
 	}
 	if note.Duration != 192 {
-		t.Error("Duration is invalid")
+		t.Fatal("Duration is invalid")
 	}
 	if _, err := NewNote(4, 3000*time.Millisecond); err == nil {
-		t.Error("invalid number not rejected")
+		t.Fatal("invalid number not rejected")
 	}
 	if _, err := NewNote(31, 4000*time.Millisecond); err == nil {
-		t.Error("invalid duration not rejected")
+		t.Fatal("invalid duration not rejected")
 	}
 }
 
 func TestNewRoomba(t *testing.T) {
 	if _, err := NewRoomba(nil); err == nil {
-		t.Error("nil conn not rejected")
+		t.Fatal("nil conn not rejected")
 	}
 	dummy, conn := net.Pipe()
 	defer dummy.Close()
 	defer conn.Close()
 	roomba, err := NewRoomba(conn)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if roomba == nil {
-		t.Error("nil roomba returned")
+		t.Fatal("nil roomba returned")
 	}
 }
 
@@ -84,13 +84,13 @@ func TestStart(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 1 {
-		t.Errorf("expected 1 byte, got %d", n)
+		t.Fatalf("expected 1 byte, got %d", n)
 	}
 	if data[0] != 128 {
-		t.Errorf("expected start op-code, got %d", data[0])
+		t.Fatalf("expected start op-code, got %d", data[0])
 	}
 }
 
@@ -100,7 +100,7 @@ func TestSetBaudRate(t *testing.T) {
 	defer conn.Close()
 	roomba, _ := NewRoomba(conn)
 	if err := roomba.SetBaudRate(BaudRate57600); err == nil {
-		t.Error("set baud not rejected on non-port connection")
+		t.Fatal("set baud not rejected on non-port connection")
 	}
 
 }
@@ -118,13 +118,13 @@ func TestSafe(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 1 {
-		t.Errorf("expected 1 byte, got %d", n)
+		t.Fatalf("expected 1 byte, got %d", n)
 	}
 	if data[0] != 131 {
-		t.Errorf("expected safe op-code, got %d", data[0])
+		t.Fatalf("expected safe op-code, got %d", data[0])
 	}
 }
 
@@ -141,13 +141,13 @@ func TestFull(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 1 {
-		t.Errorf("expected 1 byte, got %d", n)
+		t.Fatalf("expected 1 byte, got %d", n)
 	}
 	if data[0] != 132 {
-		t.Errorf("expected full op-code, got %d", data[0])
+		t.Fatalf("expected full op-code, got %d", data[0])
 	}
 }
 
@@ -164,13 +164,13 @@ func TestPower(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 1 {
-		t.Errorf("expected 1 byte, got %d", n)
+		t.Fatalf("expected 1 byte, got %d", n)
 	}
 	if data[0] != 133 {
-		t.Errorf("expected power op-code, got %d", data[0])
+		t.Fatalf("expected power op-code, got %d", data[0])
 	}
 }
 
@@ -190,13 +190,13 @@ func TestSetMode(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 1 {
-		t.Errorf("expected 1 byte, got %d", n)
+		t.Fatalf("expected 1 byte, got %d", n)
 	}
 	if data[0] != 131 {
-		t.Errorf("expected safe op-code, got %d", data[0])
+		t.Fatalf("expected safe op-code, got %d", data[0])
 	}
 }
 
@@ -213,13 +213,13 @@ func TestSpot(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 1 {
-		t.Errorf("expected 1 byte, got %d", n)
+		t.Fatalf("expected 1 byte, got %d", n)
 	}
 	if data[0] != 134 {
-		t.Errorf("expected spot op-code, got %d", data[0])
+		t.Fatalf("expected spot op-code, got %d", data[0])
 	}
 }
 
@@ -236,13 +236,13 @@ func TestClean(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 1 {
-		t.Errorf("expected 1 byte, got %d", n)
+		t.Fatalf("expected 1 byte, got %d", n)
 	}
 	if data[0] != 135 {
-		t.Errorf("expected clean op-code, got %d", data[0])
+		t.Fatalf("expected clean op-code, got %d", data[0])
 	}
 }
 
@@ -259,13 +259,13 @@ func TestMax(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 1 {
-		t.Errorf("expected 1 byte, got %d", n)
+		t.Fatalf("expected 1 byte, got %d", n)
 	}
 	if data[0] != 136 {
-		t.Errorf("expected max op-code, got %d", data[0])
+		t.Fatalf("expected max op-code, got %d", data[0])
 	}
 }
 
@@ -294,19 +294,19 @@ func TestDrive(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 5 {
-		t.Errorf("expected 5 bytes, got %d", n)
+		t.Fatalf("expected 5 bytes, got %d", n)
 	}
 	if data[0] != 137 {
-		t.Errorf("expected drive op-code, got %d", data[0])
+		t.Fatalf("expected drive op-code, got %d", data[0])
 	}
 	if data[1] != 0x00 || data[2] != 0xc8 {
-		t.Errorf("expected 0x00, 0xc8 velocity, got 0x%02x, 0x%02x", data[1], data[2])
+		t.Fatalf("expected 0x00, 0xc8 velocity, got 0x%02x, 0x%02x", data[1], data[2])
 	}
 	if data[3] != 0xfc || data[4] != 0x18 {
-		t.Errorf("expected 0xfc, 0x18 radius, got 0x%02x, 0x%02x", data[3], data[4])
+		t.Fatalf("expected 0xfc, 0x18 radius, got 0x%02x, 0x%02x", data[3], data[4])
 	}
 }
 
@@ -323,16 +323,16 @@ func TestMotors(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 2 {
-		t.Errorf("expected 2 bytes, got %d", n)
+		t.Fatalf("expected 2 bytes, got %d", n)
 	}
 	if data[0] != 138 {
-		t.Errorf("expected motors op-code, got %d", data[0])
+		t.Fatalf("expected motors op-code, got %d", data[0])
 	}
 	if data[1] != 0b00001111 {
-		t.Errorf("expected motor bits 0b00001111, got 0b%08b", data[1])
+		t.Fatalf("expected motor bits 0b00001111, got 0b%08b", data[1])
 	}
 }
 
@@ -349,22 +349,22 @@ func TestLEDs(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 4 {
-		t.Errorf("expected 4 bytes, got %d", n)
+		t.Fatalf("expected 4 bytes, got %d", n)
 	}
 	if data[0] != 139 {
-		t.Errorf("expected LEDs op-code, got %d", data[0])
+		t.Fatalf("expected LEDs op-code, got %d", data[0])
 	}
 	if data[1] != 0b00000101 {
-		t.Errorf("expected LED bits 0b00001010, got 0b%08b", data[1])
+		t.Fatalf("expected LED bits 0b00001010, got 0b%08b", data[1])
 	}
 	if data[2] != 50 {
-		t.Errorf("expected color 50, got %d", data[2])
+		t.Fatalf("expected color 50, got %d", data[2])
 	}
 	if data[3] != 100 {
-		t.Errorf("expected intensity 100, got %d", data[3])
+		t.Fatalf("expected intensity 100, got %d", data[3])
 	}
 }
 
@@ -400,31 +400,31 @@ func TestSetSong(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 7 {
-		t.Errorf("expected 7 bytes, got %d", n)
+		t.Fatalf("expected 7 bytes, got %d", n)
 	}
 	if data[0] != 140 {
-		t.Errorf("expected song op-code, got %d", data[0])
+		t.Fatalf("expected song op-code, got %d", data[0])
 	}
 	if data[1] != 1 {
-		t.Errorf("expected song number 1, got %d", data[1])
+		t.Fatalf("expected song number 1, got %d", data[1])
 	}
 	if data[2] != 2 {
-		t.Errorf("expected song length 2, got %d", data[2])
+		t.Fatalf("expected song length 2, got %d", data[2])
 	}
 	if data[3] != 31 {
-		t.Errorf("expected note 31, got %d", data[3])
+		t.Fatalf("expected note 31, got %d", data[3])
 	}
 	if data[4] != 64 {
-		t.Errorf("expected duration 64, got %d", data[3])
+		t.Fatalf("expected duration 64, got %d", data[3])
 	}
 	if data[5] != 32 {
-		t.Errorf("expected note 31, got %d", data[5])
+		t.Fatalf("expected note 31, got %d", data[5])
 	}
 	if data[6] != 96 {
-		t.Errorf("expected duration 96, got %d", data[3])
+		t.Fatalf("expected duration 96, got %d", data[3])
 	}
 }
 
@@ -444,16 +444,16 @@ func TestPlay(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 2 {
-		t.Errorf("expected 2 bytes, got %d", n)
+		t.Fatalf("expected 2 bytes, got %d", n)
 	}
 	if data[0] != 141 {
-		t.Errorf("expected play op-code, got %d", data[0])
+		t.Fatalf("expected play op-code, got %d", data[0])
 	}
 	if data[1] != 2 {
-		t.Errorf("expected song number 2, got %d", data[1])
+		t.Fatalf("expected song number 2, got %d", data[1])
 	}
 }
 
@@ -489,16 +489,16 @@ func TestSensorsSimple(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 2 {
-		t.Errorf("expected 2 bytes, got %d", n)
+		t.Fatalf("expected 2 bytes, got %d", n)
 	}
 	if data[0] != 142 {
-		t.Errorf("expected sensors op-code, got %d", data[0])
+		t.Fatalf("expected sensors op-code, got %d", data[0])
 	}
 	if data[1] != 22 {
-		t.Errorf("expected packet id 22, got 0x%02x", data[1])
+		t.Fatalf("expected packet id 22, got 0x%02x", data[1])
 	}
 	<-c
 	<-c
@@ -571,16 +571,16 @@ func TestSensorsGroup(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 2 {
-		t.Errorf("expected 2 bytes, got %d", n)
+		t.Fatalf("expected 2 bytes, got %d", n)
 	}
 	if data[0] != 142 {
-		t.Errorf("expected sensors op-code, got %d", data[0])
+		t.Fatalf("expected sensors op-code, got %d", data[0])
 	}
 	if data[1] != 2 {
-		t.Errorf("expected packet id 2, got 0x%02x", data[1])
+		t.Fatalf("expected packet id 2, got 0x%02x", data[1])
 	}
 	<-c
 	<-c
@@ -608,22 +608,22 @@ func TestMotorsPWM(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 4 {
-		t.Errorf("expected 4 bytes, got %d", n)
+		t.Fatalf("expected 4 bytes, got %d", n)
 	}
 	if data[0] != 144 {
-		t.Errorf("expected motors PWN op-code, got %d", data[0])
+		t.Fatalf("expected motors PWN op-code, got %d", data[0])
 	}
 	if data[1] != 0xce {
-		t.Errorf("expected 0xce main brush PWM, got 0x%02x", data[1])
+		t.Fatalf("expected 0xce main brush PWM, got 0x%02x", data[1])
 	}
 	if data[2] != 0x32 {
-		t.Errorf("expected 0x32 side brush PWM, got 0x%02x", data[2])
+		t.Fatalf("expected 0x32 side brush PWM, got 0x%02x", data[2])
 	}
 	if data[3] != 0x64 {
-		t.Errorf("expected 0x64 vacuum PWM, got 0x%02x", data[3])
+		t.Fatalf("expected 0x64 vacuum PWM, got 0x%02x", data[3])
 	}
 }
 
@@ -652,19 +652,19 @@ func TestDriveDirect(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 5 {
-		t.Errorf("expected 5 bytes, got %d", n)
+		t.Fatalf("expected 5 bytes, got %d", n)
 	}
 	if data[0] != 145 {
-		t.Errorf("expected drive direct op-code, got %d", data[0])
+		t.Fatalf("expected drive direct op-code, got %d", data[0])
 	}
 	if data[1] != 0x00 || data[2] != 0xfa {
-		t.Errorf("expected 0x00, 0xfa right velocity, got 0x%02x, 0x%02x", data[1], data[2])
+		t.Fatalf("expected 0x00, 0xfa right velocity, got 0x%02x, 0x%02x", data[1], data[2])
 	}
 	if data[3] != 0xff || data[4] != 0x06 {
-		t.Errorf("expected 0xff, 0x06 left velocity, got 0x%02x, 0x%02x", data[3], data[4])
+		t.Fatalf("expected 0xff, 0x06 left velocity, got 0x%02x, 0x%02x", data[3], data[4])
 	}
 }
 
@@ -693,18 +693,18 @@ func TestDrivePWM(t *testing.T) {
 	}()
 	n, err := dummy.Read(data)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if n != 5 {
-		t.Errorf("expected 5 bytes, got %d", n)
+		t.Fatalf("expected 5 bytes, got %d", n)
 	}
 	if data[0] != 146 {
-		t.Errorf("expected drive PWM op-code, got %d", data[0])
+		t.Fatalf("expected drive PWM op-code, got %d", data[0])
 	}
 	if data[1] != 0xff || data[2] != 0x38 {
-		t.Errorf("expected 0xff, 0x38 right wheel PWM, got 0x%02x, 0x%02x", data[1], data[2])
+		t.Fatalf("expected 0xff, 0x38 right wheel PWM, got 0x%02x, 0x%02x", data[1], data[2])
 	}
 	if data[3] != 0x00 || data[4] != 0xc8 {
-		t.Errorf("expected 0x00, 0xc8 left wheel PWM, got 0x%02x, 0x%02x", data[3], data[4])
+		t.Fatalf("expected 0x00, 0xc8 left wheel PWM, got 0x%02x, 0x%02x", data[3], data[4])
 	}
 }

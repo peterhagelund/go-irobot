@@ -37,30 +37,30 @@ func TestExtract3(t *testing.T) {
 	data[9] = 0x10 // -
 	err := packet.Extract(data, 0)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	// Validate Packet21
 	if packet.Packet21.ChargingState != ChargingStateTrickleCharging {
-		t.Error("ChargingState has wrong value")
+		t.Fatal("ChargingState has wrong value")
 	}
 	// Validate Packet22
 	if packet.Packet22.Voltage != 16543 {
-		t.Error("Voltage has wrong value")
+		t.Fatal("Voltage has wrong value")
 	}
 	// Validate Packet23
 	if packet.Packet23.Current != -1234 {
-		t.Error("Current has wrong value")
+		t.Fatal("Current has wrong value")
 	}
 	// Validate Packet24
 	if packet.Packet24.Temperature != 19 {
-		t.Error("Temperature has wrong value")
+		t.Fatal("Temperature has wrong value")
 	}
 	// Validate Packet25
 	if packet.Packet25.BatteryCharge != 5000 {
-		t.Error("BatteryCharge has wrong value")
+		t.Fatal("BatteryCharge has wrong value")
 	}
 	// Validate Packet26
 	if packet.Packet26.BatteryCapacity != 10000 {
-		t.Error("BatteryCapacity has wrong value")
+		t.Fatal("BatteryCapacity has wrong value")
 	}
 }

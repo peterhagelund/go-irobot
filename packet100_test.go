@@ -108,271 +108,271 @@ func TestExtract100(t *testing.T) {
 
 	err := packet.Extract(data, 0)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	// Validate Packet7
 	if packet.Packet7.BumpRight != false {
-		t.Error("BumpRight has wrong value")
+		t.Fatal("BumpRight has wrong value")
 	}
 	if packet.Packet7.BumpLeft != true {
-		t.Error("BumpLeft has wrong value")
+		t.Fatal("BumpLeft has wrong value")
 	}
 	if packet.Packet7.WheelDropRight != false {
-		t.Error("WheelDropRight has wrong value")
+		t.Fatal("WheelDropRight has wrong value")
 	}
 	if packet.Packet7.WheelDropLeft != false {
-		t.Error("WheelDropLeft has wrong value")
+		t.Fatal("WheelDropLeft has wrong value")
 	}
 	// Validate Packet8
 	if packet.Packet8.Wall != true {
-		t.Error("Wall has wrong value")
+		t.Fatal("Wall has wrong value")
 	}
 	// Validate Packet9
 	if packet.Packet9.CliffLeft != true {
-		t.Error("CliffLeft has wrong value")
+		t.Fatal("CliffLeft has wrong value")
 	}
 	// Validate Packet10
 	if packet.Packet10.CliffFrontLeft != true {
-		t.Error("CliffFrontLeft has wrong value")
+		t.Fatal("CliffFrontLeft has wrong value")
 	}
 	// Validate Packet11
 	if packet.Packet11.CliffFrontRight != false {
-		t.Error("CliffFrontRight has wrong value")
+		t.Fatal("CliffFrontRight has wrong value")
 	}
 	// Validate Packet12
 	if packet.Packet12.CliffRight != false {
-		t.Error("CliffRight has wrong value")
+		t.Fatal("CliffRight has wrong value")
 	}
 	// Validate Packet13
 	if packet.Packet13.VirtualWall != true {
-		t.Error("VirtualWall has wrong value")
+		t.Fatal("VirtualWall has wrong value")
 	}
 	// Validate Packet14
 	if packet.Packet14.SideBrush != false {
-		t.Error("SideBrush has wrong value")
+		t.Fatal("SideBrush has wrong value")
 	}
 	if packet.Packet14.MainBrush != false {
-		t.Error("MainBrush has wrong value")
+		t.Fatal("MainBrush has wrong value")
 	}
 	if packet.Packet14.RightWheel != true {
-		t.Error("RightWheel has wrong value")
+		t.Fatal("RightWheel has wrong value")
 	}
 	if packet.Packet14.LeftWheel != true {
-		t.Error("LeftWheel has wrong value")
+		t.Fatal("LeftWheel has wrong value")
 	}
 	// Validate Packet15
 	if packet.Packet15.DirtDetect != 42 {
-		t.Error("DirtDetect has wrong value")
+		t.Fatal("DirtDetect has wrong value")
 	}
 	// Validate Packet16
 	if packet.Packet16.UnusedByte != 0x00 {
-		t.Error("UnusedByte has wrong value")
+		t.Fatal("UnusedByte has wrong value")
 	}
 	// Validate Packet17
 	if packet.Packet17.InfraredCharacterOmni != 0x40 {
-		t.Error("InfraredCharacterOmni has wrong value")
+		t.Fatal("InfraredCharacterOmni has wrong value")
 	}
 	// Validate Packet18
 	if packet.Packet18.Clean != false {
-		t.Error("Clean has wrong value")
+		t.Fatal("Clean has wrong value")
 	}
 	if packet.Packet18.Spot != false {
-		t.Error("Spot has wrong value")
+		t.Fatal("Spot has wrong value")
 	}
 	if packet.Packet18.Dock != true {
-		t.Error("Dock has wrong value")
+		t.Fatal("Dock has wrong value")
 	}
 	if packet.Packet18.Minute != false {
-		t.Error("Minute has wrong value")
+		t.Fatal("Minute has wrong value")
 	}
 	if packet.Packet18.Hour != false {
-		t.Error("Hour has wrong value")
+		t.Fatal("Hour has wrong value")
 	}
 	if packet.Packet18.Day != false {
-		t.Error("Day has wrong value")
+		t.Fatal("Day has wrong value")
 	}
 	if packet.Packet18.Schedule != false {
-		t.Error("Schedule has wrong value")
+		t.Fatal("Schedule has wrong value")
 	}
 	if packet.Packet18.Clock != false {
-		t.Error("Clock has wrong value")
+		t.Fatal("Clock has wrong value")
 	}
 	// Validate Packet19
 	if packet.Packet19.Distance != 12345 {
-		t.Error("Distance has wrong value")
+		t.Fatal("Distance has wrong value")
 	}
 	// Validate Packet20
 	if packet.Packet20.Angle != -999 {
-		t.Error("Angle has wrong value")
+		t.Fatal("Angle has wrong value")
 	}
 	// Validate Packet21
 	if packet.Packet21.ChargingState != ChargingStateTrickleCharging {
-		t.Error("ChargingState has wrong value")
+		t.Fatal("ChargingState has wrong value")
 	}
 	// Validate Packet22
 	if packet.Packet22.Voltage != 16543 {
-		t.Error("Voltage has wrong value")
+		t.Fatal("Voltage has wrong value")
 	}
 	// Validate Packet23
 	if packet.Packet23.Current != -1234 {
-		t.Error("Current has wrong value")
+		t.Fatal("Current has wrong value")
 	}
 	// Validate Packet24
 	if packet.Packet24.Temperature != 19 {
-		t.Error("Temperature has wrong value")
+		t.Fatal("Temperature has wrong value")
 	}
 	// Validate Packet25
 	if packet.Packet25.BatteryCharge != 5000 {
-		t.Error("BatteryCharge has wrong value")
+		t.Fatal("BatteryCharge has wrong value")
 	}
 	// Validate Packet26
 	if packet.Packet26.BatteryCapacity != 10000 {
-		t.Error("BatteryCapacity has wrong value")
+		t.Fatal("BatteryCapacity has wrong value")
 	}
 	// Validate Packet27
 	if packet.Packet27.WallSignal != 987 {
-		t.Error("WallSignal has wrong value")
+		t.Fatal("WallSignal has wrong value")
 	}
 	// Validate Packet28
 	if packet.Packet28.CliffLeftSignal != 3456 {
-		t.Error("CliffLeftSignal has wrong value")
+		t.Fatal("CliffLeftSignal has wrong value")
 	}
 	// Validate Packet29
 	if packet.Packet29.CliffFrontLeftSignal != 2345 {
-		t.Error("CliffFrontLeftSignal has wrong value")
+		t.Fatal("CliffFrontLeftSignal has wrong value")
 	}
 	// Validate Packet30
 	if packet.Packet30.CliffFrontRightSignal != 2222 {
-		t.Error("CliffFrontRightSignal has wrong value")
+		t.Fatal("CliffFrontRightSignal has wrong value")
 	}
 	// Validate Packet31
 	if packet.Packet31.CliffRightSignal != 1111 {
-		t.Error("CliffFrontRightSignal has wrong value")
+		t.Fatal("CliffFrontRightSignal has wrong value")
 	}
 	// Validate Packet32
 	if packet.Packet32.UnusedByte != 42 {
-		t.Errorf("UnusedByte has wrong value")
+		t.Fatal("UnusedByte has wrong value")
 	}
 	// Validate Packet33
 	if packet.Packet33.UnusedWord != 4660 {
-		t.Errorf("UnusedWord has wrong value")
+		t.Fatal("UnusedWord has wrong value")
 	}
 	// Validate Packet34
 	if packet.Packet34.InternalCharger != false {
-		t.Errorf("InternalCharger has wrong value")
+		t.Fatal("InternalCharger has wrong value")
 	}
 	if packet.Packet34.HomeBase != true {
-		t.Errorf("HomeBase has wrong value")
+		t.Fatal("HomeBase has wrong value")
 	}
 	// Validate Packet35
 	if packet.Packet35.Mode != ModeSafe {
-		t.Errorf("Mode has wrong value")
+		t.Fatal("Mode has wrong value")
 	}
 	// Validate Packet36
 	if packet.Packet36.Song != 4 {
-		t.Errorf("Song has wrong value")
+		t.Fatal("Song has wrong value")
 	}
 	// Validate Packet37
 	if packet.Packet37.SongPlaying != true {
-		t.Errorf("SongPlaying has wrong value")
+		t.Fatal("SongPlaying has wrong value")
 	}
 	// Validate Packet38
 	if packet.Packet38.StreamPacketCount != 42 {
-		t.Errorf("StreamPacketCount has wrong value")
+		t.Fatal("StreamPacketCount has wrong value")
 	}
 	// Validate Packet39
 	if packet.Packet39.RequestedVelocity != -500 {
-		t.Errorf("RequestedVelocity has wrong value")
+		t.Fatal("RequestedVelocity has wrong value")
 	}
 	// Validate Packet40
 	if packet.Packet40.RequestedRadius != -2000 {
-		t.Errorf("RequestedRadius has wrong value")
+		t.Fatal("RequestedRadius has wrong value")
 	}
 	// Validate Packet41
 	if packet.Packet41.RequestedRightVelocity != 500 {
-		t.Errorf("RequestedRightVelocity has wrong value")
+		t.Fatal("RequestedRightVelocity has wrong value")
 	}
 	// Validate Packet42
 	if packet.Packet42.RequestedLeftVelocity != -500 {
-		t.Errorf("RequestedLeftVelocity has wrong value")
+		t.Fatal("RequestedLeftVelocity has wrong value")
 	}
 	// Validate Packet43
 	if packet.Packet43.RightEncoderCounts != 4660 {
-		t.Errorf("RightEncoderCounts has wrong value")
+		t.Fatal("RightEncoderCounts has wrong value")
 	}
 	// Validate Packet44
 	if packet.Packet44.LeftEncoderCounts != 9029 {
-		t.Errorf("LeftEncoderCounts has wrong value")
+		t.Fatal("LeftEncoderCounts has wrong value")
 	}
 	// Validate Packet45
 	if packet.Packet45.LightBumperLeft != true {
-		t.Errorf("LightBumperLeft has wrong value")
+		t.Fatal("LightBumperLeft has wrong value")
 	}
 	if packet.Packet45.LightBumperFrontLeft != false {
-		t.Errorf("LightBumperFrontLeft has wrong value")
+		t.Fatal("LightBumperFrontLeft has wrong value")
 	}
 	if packet.Packet45.LightBumperCenterLeft != true {
-		t.Errorf("LightBumperCenterLeft has wrong value")
+		t.Fatal("LightBumperCenterLeft has wrong value")
 	}
 	if packet.Packet45.LightBumperCenterRight != false {
-		t.Errorf("LightBumperCenterRight has wrong value")
+		t.Fatal("LightBumperCenterRight has wrong value")
 	}
 	if packet.Packet45.LightBumperFrontRight != true {
-		t.Errorf("LightBumperFrontRight has wrong value")
+		t.Fatal("LightBumperFrontRight has wrong value")
 	}
 	if packet.Packet45.LightBumperRight != false {
-		t.Errorf("LightBumperRight has wrong value")
+		t.Fatal("LightBumperRight has wrong value")
 	}
 	// Validate Packet46
 	if packet.Packet46.LightBumpLeftSignal != 888 {
-		t.Errorf("LightBumpLeftSignal has wrong value")
+		t.Fatal("LightBumpLeftSignal has wrong value")
 	}
 	// Validate Packet47
 	if packet.Packet47.LightBumpFrontLeftSignal != 999 {
-		t.Errorf("LightBumpFrontLeftSignal has wrong value")
+		t.Fatal("LightBumpFrontLeftSignal has wrong value")
 	}
 	// Validate Packet48
 	if packet.Packet48.LightBumpCenterLeftSignal != 1010 {
-		t.Errorf("LightBumpCenterLeftSignal has wrong value")
+		t.Fatal("LightBumpCenterLeftSignal has wrong value")
 	}
 	// Validate Packet49
 	if packet.Packet49.LightBumpCenterRightSignal != 1111 {
-		t.Errorf("LightBumpCenterRightSignal has wrong value")
+		t.Fatal("LightBumpCenterRightSignal has wrong value")
 	}
 	// Validate Packet50
 	if packet.Packet50.LightBumpFrontRightSignal != 1212 {
-		t.Errorf("LightBumpFrontRightSignal has wrong value")
+		t.Fatal("LightBumpFrontRightSignal has wrong value")
 	}
 	// Validate Packet51
 	if packet.Packet51.LightBumpRightSignal != 1313 {
-		t.Errorf("LightBumpRightSignal has wrong value")
+		t.Fatal("LightBumpRightSignal has wrong value")
 	}
 	// Validate Packet52
 	if packet.Packet52.InfraredCharacterLeft != 42 {
-		t.Errorf("InfraredCharacterLeft has wrong value")
+		t.Fatal("InfraredCharacterLeft has wrong value")
 	}
 	// Validate Packet53
 	if packet.Packet53.InfraredCharacterRight != 13 {
-		t.Errorf("InfraredCharacterRight has wrong value")
+		t.Fatal("InfraredCharacterRight has wrong value")
 	}
 	// Validate Packet54
 	if packet.Packet54.LeftMotorCurrent != -2000 {
-		t.Errorf("LeftMotorCurrent has wrong value")
+		t.Fatal("LeftMotorCurrent has wrong value")
 	}
 	// Validate Packet55
 	if packet.Packet55.RightMotorCurrent != 2000 {
-		t.Errorf("RightMotorCurrent has wrong value")
+		t.Fatal("RightMotorCurrent has wrong value")
 	}
 	// Validate Packet56
 	if packet.Packet56.MainBrushMotorCurrent != 1000 {
-		t.Errorf("MainBrushMotorCurrent has wrong value")
+		t.Fatal("MainBrushMotorCurrent has wrong value")
 	}
 	// Validate Packet57
 	if packet.Packet57.SideBrushMotorCurrent != -1000 {
-		t.Errorf("SideBrushMotorCurrent has wrong value")
+		t.Fatal("SideBrushMotorCurrent has wrong value")
 	}
 	// Validate Packet58
 	if packet.Packet58.Stasis != true {
-		t.Errorf("Stasis has wrong value")
+		t.Fatal("Stasis has wrong value")
 	}
 }

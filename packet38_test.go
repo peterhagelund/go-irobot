@@ -27,20 +27,20 @@ func TestExtract38(t *testing.T) {
 	data := make([]byte, 1)
 	data[0] = 0
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.StreamPacketCount != 0 {
-		t.Errorf("StreamPacketCount has wrong value")
+		t.Fatal("StreamPacketCount has wrong value")
 	}
 	data[0] = 108
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.StreamPacketCount != 108 {
-		t.Errorf("StreamPacketCount has wrong value")
+		t.Fatal("StreamPacketCount has wrong value")
 	}
 	data[0] = 109
 	if err := packet.Extract(data, 0); err == nil {
-		t.Error("invalid stream packet count not rejected")
+		t.Fatal("invalid stream packet count not rejected")
 	}
 }

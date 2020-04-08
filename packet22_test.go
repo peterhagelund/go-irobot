@@ -28,17 +28,17 @@ func TestExtract22(t *testing.T) {
 	data[0] = 0x00
 	data[1] = 0x00
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.Voltage != 0 {
-		t.Errorf("Voltage has wrong value")
+		t.Fatal("Voltage has wrong value")
 	}
 	data[0] = 0x42
 	data[1] = 0x68
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.Voltage != 17000 {
-		t.Errorf("Voltage has wrong value")
+		t.Fatal("Voltage has wrong value")
 	}
 }

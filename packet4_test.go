@@ -41,41 +41,41 @@ func TestExtract4(t *testing.T) {
 	data[13] = 0b00000010 // Packet34
 	err := packet.Extract(data, 0)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	// Validate Packet27
 	if packet.Packet27.WallSignal != 987 {
-		t.Error("WallSignal has wrong value")
+		t.Fatal("WallSignal has wrong value")
 	}
 	// Validate Packet28
 	if packet.Packet28.CliffLeftSignal != 3456 {
-		t.Error("CliffLeftSignal has wrong value")
+		t.Fatal("CliffLeftSignal has wrong value")
 	}
 	// Validate Packet29
 	if packet.Packet29.CliffFrontLeftSignal != 2345 {
-		t.Error("CliffFrontLeftSignal has wrong value")
+		t.Fatal("CliffFrontLeftSignal has wrong value")
 	}
 	// Validate Packet30
 	if packet.Packet30.CliffFrontRightSignal != 2222 {
-		t.Error("CliffFrontRightSignal has wrong value")
+		t.Fatal("CliffFrontRightSignal has wrong value")
 	}
 	// Validate Packet31
 	if packet.Packet31.CliffRightSignal != 1111 {
-		t.Error("CliffFrontRightSignal has wrong value")
+		t.Fatal("CliffFrontRightSignal has wrong value")
 	}
 	// Validate Packet32
 	if packet.Packet32.UnusedByte != 42 {
-		t.Errorf("UnusedByte has wrong value")
+		t.Fatalf("UnusedByte has wrong value")
 	}
 	// Validate Packet33
 	if packet.Packet33.UnusedWord != 4660 {
-		t.Errorf("UnusedWord has wrong value")
+		t.Fatalf("UnusedWord has wrong value")
 	}
 	// Validate Packet34
 	if packet.Packet34.InternalCharger != false {
-		t.Errorf("InternalCharger has wrong value")
+		t.Fatalf("InternalCharger has wrong value")
 	}
 	if packet.Packet34.HomeBase != true {
-		t.Errorf("HomeBase has wrong value")
+		t.Fatalf("HomeBase has wrong value")
 	}
 }

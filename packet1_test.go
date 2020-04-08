@@ -37,64 +37,64 @@ func TestExtract1(t *testing.T) {
 	data[9] = 0x00       // Packet16
 	err := packet.Extract(data, 0)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	// Validate Packet7
 	if packet.Packet7.BumpRight != false {
-		t.Error("BumpRight has wrong value")
+		t.Fatal("BumpRight has wrong value")
 	}
 	if packet.Packet7.BumpLeft != true {
-		t.Error("BumpLeft has wrong value")
+		t.Fatal("BumpLeft has wrong value")
 	}
 	if packet.Packet7.WheelDropRight != false {
-		t.Error("WheelDropRight has wrong value")
+		t.Fatal("WheelDropRight has wrong value")
 	}
 	if packet.Packet7.WheelDropLeft != false {
-		t.Error("WheelDropLeft has wrong value")
+		t.Fatal("WheelDropLeft has wrong value")
 	}
 	// Validate Packet8
 	if packet.Packet8.Wall != true {
-		t.Error("Wall has wrong value")
+		t.Fatal("Wall has wrong value")
 	}
 	// Validate Packet9
 	if packet.Packet9.CliffLeft != true {
-		t.Error("CliffLeft has wrong value")
+		t.Fatal("CliffLeft has wrong value")
 	}
 	// Validate Packet10
 	if packet.Packet10.CliffFrontLeft != true {
-		t.Error("CliffFrontLeft has wrong value")
+		t.Fatal("CliffFrontLeft has wrong value")
 	}
 	// Validate Packet11
 	if packet.Packet11.CliffFrontRight != false {
-		t.Error("CliffFrontRight has wrong value")
+		t.Fatal("CliffFrontRight has wrong value")
 	}
 	// Validate Packet12
 	if packet.Packet12.CliffRight != false {
-		t.Error("CliffRight has wrong value")
+		t.Fatal("CliffRight has wrong value")
 	}
 	// Validate Packet13
 	if packet.Packet13.VirtualWall != true {
-		t.Error("VirtualWall has wrong value")
+		t.Fatal("VirtualWall has wrong value")
 	}
 	// Validate Packet14
 	if packet.Packet14.SideBrush != false {
-		t.Error("SideBrush has wrong value")
+		t.Fatal("SideBrush has wrong value")
 	}
 	if packet.Packet14.MainBrush != false {
-		t.Error("MainBrush has wrong value")
+		t.Fatal("MainBrush has wrong value")
 	}
 	if packet.Packet14.RightWheel != true {
-		t.Error("RightWheel has wrong value")
+		t.Fatal("RightWheel has wrong value")
 	}
 	if packet.Packet14.LeftWheel != true {
-		t.Error("LeftWheel has wrong value")
+		t.Fatal("LeftWheel has wrong value")
 	}
 	// Validate Packet15
 	if packet.Packet15.DirtDetect != 42 {
-		t.Error("DirtDetect has wrong value")
+		t.Fatal("DirtDetect has wrong value")
 	}
 	// Validate Packet16
 	if packet.Packet16.UnusedByte != 0x00 {
-		t.Error("UnusedByte has wrong value")
+		t.Fatal("UnusedByte has wrong value")
 	}
 }

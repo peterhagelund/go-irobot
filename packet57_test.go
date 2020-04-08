@@ -28,25 +28,25 @@ func TestExtract57(t *testing.T) {
 	data[0] = 0x00
 	data[1] = 0x00
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.SideBrushMotorCurrent != 0 {
-		t.Errorf("SideBrushMotorCurrent has wrong value")
+		t.Fatal("SideBrushMotorCurrent has wrong value")
 	}
 	data[0] = 0xf0
 	data[1] = 0x60
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.SideBrushMotorCurrent != -4000 {
-		t.Errorf("SideBrushMotorCurrent has wrong value")
+		t.Fatal("SideBrushMotorCurrent has wrong value")
 	}
 	data[0] = 0x0f
 	data[1] = 0xa0
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.SideBrushMotorCurrent != 4000 {
-		t.Errorf("SideBrushMotorCurrent has wrong value")
+		t.Fatal("SideBrushMotorCurrent has wrong value")
 	}
 }

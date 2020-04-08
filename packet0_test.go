@@ -53,125 +53,125 @@ func TestExtract0(t *testing.T) {
 	data[25] = 0x10       // -
 	err := packet.Extract(data, 0)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	// Validate Packet7
 	if packet.Packet7.BumpRight != false {
-		t.Error("BumpRight has wrong value")
+		t.Fatal("BumpRight has wrong value")
 	}
 	if packet.Packet7.BumpLeft != true {
-		t.Error("BumpLeft has wrong value")
+		t.Fatal("BumpLeft has wrong value")
 	}
 	if packet.Packet7.WheelDropRight != false {
-		t.Error("WheelDropRight has wrong value")
+		t.Fatal("WheelDropRight has wrong value")
 	}
 	if packet.Packet7.WheelDropLeft != false {
-		t.Error("WheelDropLeft has wrong value")
+		t.Fatal("WheelDropLeft has wrong value")
 	}
 	// Validate Packet8
 	if packet.Packet8.Wall != true {
-		t.Error("Wall has wrong value")
+		t.Fatal("Wall has wrong value")
 	}
 	// Validate Packet9
 	if packet.Packet9.CliffLeft != true {
-		t.Error("CliffLeft has wrong value")
+		t.Fatal("CliffLeft has wrong value")
 	}
 	// Validate Packet10
 	if packet.Packet10.CliffFrontLeft != true {
-		t.Error("CliffFrontLeft has wrong value")
+		t.Fatal("CliffFrontLeft has wrong value")
 	}
 	// Validate Packet11
 	if packet.Packet11.CliffFrontRight != false {
-		t.Error("CliffFrontRight has wrong value")
+		t.Fatal("CliffFrontRight has wrong value")
 	}
 	// Validate Packet12
 	if packet.Packet12.CliffRight != false {
-		t.Error("CliffRight has wrong value")
+		t.Fatal("CliffRight has wrong value")
 	}
 	// Validate Packet13
 	if packet.Packet13.VirtualWall != true {
-		t.Error("VirtualWall has wrong value")
+		t.Fatal("VirtualWall has wrong value")
 	}
 	// Validate Packet14
 	if packet.Packet14.SideBrush != false {
-		t.Error("SideBrush has wrong value")
+		t.Fatal("SideBrush has wrong value")
 	}
 	if packet.Packet14.MainBrush != false {
-		t.Error("MainBrush has wrong value")
+		t.Fatal("MainBrush has wrong value")
 	}
 	if packet.Packet14.RightWheel != true {
-		t.Error("RightWheel has wrong value")
+		t.Fatal("RightWheel has wrong value")
 	}
 	if packet.Packet14.LeftWheel != true {
-		t.Error("LeftWheel has wrong value")
+		t.Fatal("LeftWheel has wrong value")
 	}
 	// Validate Packet15
 	if packet.Packet15.DirtDetect != 42 {
-		t.Error("DirtDetect has wrong value")
+		t.Fatal("DirtDetect has wrong value")
 	}
 	// Validate Packet16
 	if packet.Packet16.UnusedByte != 0x00 {
-		t.Error("UnusedByte has wrong value")
+		t.Fatal("UnusedByte has wrong value")
 	}
 	// Validate Packet17
 	if packet.Packet17.InfraredCharacterOmni != 0x40 {
-		t.Error("InfraredCharacterOmni has wrong value")
+		t.Fatal("InfraredCharacterOmni has wrong value")
 	}
 	// Validate Packet18
 	if packet.Packet18.Clean != false {
-		t.Error("Clean has wrong value")
+		t.Fatal("Clean has wrong value")
 	}
 	if packet.Packet18.Spot != false {
-		t.Error("Spot has wrong value")
+		t.Fatal("Spot has wrong value")
 	}
 	if packet.Packet18.Dock != true {
-		t.Error("Dock has wrong value")
+		t.Fatal("Dock has wrong value")
 	}
 	if packet.Packet18.Minute != false {
-		t.Error("Minute has wrong value")
+		t.Fatal("Minute has wrong value")
 	}
 	if packet.Packet18.Hour != false {
-		t.Error("Hour has wrong value")
+		t.Fatal("Hour has wrong value")
 	}
 	if packet.Packet18.Day != false {
-		t.Error("Day has wrong value")
+		t.Fatal("Day has wrong value")
 	}
 	if packet.Packet18.Schedule != false {
-		t.Error("Schedule has wrong value")
+		t.Fatal("Schedule has wrong value")
 	}
 	if packet.Packet18.Clock != false {
-		t.Error("Clock has wrong value")
+		t.Fatal("Clock has wrong value")
 	}
 	// Validate Packet19
 	if packet.Packet19.Distance != 12345 {
-		t.Error("Distance has wrong value")
+		t.Fatal("Distance has wrong value")
 	}
 	// Validate Packet20
 	if packet.Packet20.Angle != -999 {
-		t.Error("Angle has wrong value")
+		t.Fatal("Angle has wrong value")
 	}
 	// Validate Packet21
 	if packet.Packet21.ChargingState != ChargingStateTrickleCharging {
-		t.Error("ChargingState has wrong value")
+		t.Fatal("ChargingState has wrong value")
 	}
 	// Validate Packet22
 	if packet.Packet22.Voltage != 16543 {
-		t.Error("Voltage has wrong value")
+		t.Fatal("Voltage has wrong value")
 	}
 	// Validate Packet23
 	if packet.Packet23.Current != -1234 {
-		t.Error("Current has wrong value")
+		t.Fatal("Current has wrong value")
 	}
 	// Validate Packet24
 	if packet.Packet24.Temperature != 19 {
-		t.Error("Temperature has wrong value")
+		t.Fatal("Temperature has wrong value")
 	}
 	// Validate Packet25
 	if packet.Packet25.BatteryCharge != 5000 {
-		t.Error("BatteryCharge has wrong value")
+		t.Fatal("BatteryCharge has wrong value")
 	}
 	// Validate Packet26
 	if packet.Packet26.BatteryCapacity != 10000 {
-		t.Error("BatteryCapacity has wrong value")
+		t.Fatal("BatteryCapacity has wrong value")
 	}
 }

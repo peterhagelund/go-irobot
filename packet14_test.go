@@ -27,34 +27,34 @@ func TestExtract14(t *testing.T) {
 	data := make([]byte, 1)
 	data[0] = 0b00000000
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.SideBrush != false {
-		t.Errorf("SideBrush has wrong value")
+		t.Fatal("SideBrush has wrong value")
 	}
 	if packet.MainBrush != false {
-		t.Errorf("MainBrush has wrong value")
+		t.Fatal("MainBrush has wrong value")
 	}
 	if packet.RightWheel != false {
-		t.Errorf("RightWheel has wrong value")
+		t.Fatal("RightWheel has wrong value")
 	}
 	if packet.LeftWheel != false {
-		t.Errorf("LeftWheel has wrong value")
+		t.Fatal("LeftWheel has wrong value")
 	}
 	data[0] = 0b00011101
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.SideBrush != true {
-		t.Errorf("SideBrush has wrong value")
+		t.Fatal("SideBrush has wrong value")
 	}
 	if packet.MainBrush != true {
-		t.Errorf("MainBrush has wrong value")
+		t.Fatal("MainBrush has wrong value")
 	}
 	if packet.RightWheel != true {
-		t.Errorf("RightWheel has wrong value")
+		t.Fatal("RightWheel has wrong value")
 	}
 	if packet.LeftWheel != true {
-		t.Errorf("LeftWheel has wrong value")
+		t.Fatal("LeftWheel has wrong value")
 	}
 }

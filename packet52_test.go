@@ -27,16 +27,16 @@ func TestExtract52(t *testing.T) {
 	data := make([]byte, 1)
 	data[0] = 0
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.InfraredCharacterLeft != 0 {
-		t.Errorf("InfraredCharacterLeft has wrong value")
+		t.Fatal("InfraredCharacterLeft has wrong value")
 	}
 	data[0] = 42
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.InfraredCharacterLeft != 42 {
-		t.Errorf("InfraredCharacterLeft has wrong value")
+		t.Fatal("InfraredCharacterLeft has wrong value")
 	}
 }

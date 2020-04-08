@@ -39,30 +39,30 @@ func TestExtract106(t *testing.T) {
 	data[11] = 0x21 // -
 	err := packet.Extract(data, 0)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	// Validate Packet46
 	if packet.Packet46.LightBumpLeftSignal != 888 {
-		t.Errorf("LightBumpLeftSignal has wrong value")
+		t.Fatal("LightBumpLeftSignal has wrong value")
 	}
 	// Validate Packet47
 	if packet.Packet47.LightBumpFrontLeftSignal != 999 {
-		t.Errorf("LightBumpFrontLeftSignal has wrong value")
+		t.Fatal("LightBumpFrontLeftSignal has wrong value")
 	}
 	// Validate Packet48
 	if packet.Packet48.LightBumpCenterLeftSignal != 1010 {
-		t.Errorf("LightBumpCenterLeftSignal has wrong value")
+		t.Fatal("LightBumpCenterLeftSignal has wrong value")
 	}
 	// Validate Packet49
 	if packet.Packet49.LightBumpCenterRightSignal != 1111 {
-		t.Errorf("LightBumpCenterRightSignal has wrong value")
+		t.Fatal("LightBumpCenterRightSignal has wrong value")
 	}
 	// Validate Packet50
 	if packet.Packet50.LightBumpFrontRightSignal != 1212 {
-		t.Errorf("LightBumpFrontRightSignal has wrong value")
+		t.Fatal("LightBumpFrontRightSignal has wrong value")
 	}
 	// Validate Packet51
 	if packet.Packet51.LightBumpRightSignal != 1313 {
-		t.Errorf("LightBumpRightSignal has wrong value")
+		t.Fatal("LightBumpRightSignal has wrong value")
 	}
 }

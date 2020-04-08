@@ -33,43 +33,43 @@ func TestExtract2(t *testing.T) {
 	data[5] = 0x19       // -
 	err := packet.Extract(data, 0)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	// Validate Packet17
 	if packet.Packet17.InfraredCharacterOmni != 0x40 {
-		t.Error("InfraredCharacterOmni has wrong value")
+		t.Fatal("InfraredCharacterOmni has wrong value")
 	}
 	// Validate Packet18
 	if packet.Packet18.Clean != false {
-		t.Error("Clean has wrong value")
+		t.Fatal("Clean has wrong value")
 	}
 	if packet.Packet18.Spot != false {
-		t.Error("Spot has wrong value")
+		t.Fatal("Spot has wrong value")
 	}
 	if packet.Packet18.Dock != true {
-		t.Error("Dock has wrong value")
+		t.Fatal("Dock has wrong value")
 	}
 	if packet.Packet18.Minute != false {
-		t.Error("Minute has wrong value")
+		t.Fatal("Minute has wrong value")
 	}
 	if packet.Packet18.Hour != false {
-		t.Error("Hour has wrong value")
+		t.Fatal("Hour has wrong value")
 	}
 	if packet.Packet18.Day != false {
-		t.Error("Day has wrong value")
+		t.Fatal("Day has wrong value")
 	}
 	if packet.Packet18.Schedule != false {
-		t.Error("Schedule has wrong value")
+		t.Fatal("Schedule has wrong value")
 	}
 	if packet.Packet18.Clock != false {
-		t.Error("Clock has wrong value")
+		t.Fatal("Clock has wrong value")
 	}
 	// Validate Packet19
 	if packet.Packet19.Distance != 12345 {
-		t.Error("Distance has wrong value")
+		t.Fatal("Distance has wrong value")
 	}
 	// Validate Packet20
 	if packet.Packet20.Angle != -999 {
-		t.Error("Angle has wrong value")
+		t.Fatal("Angle has wrong value")
 	}
 }

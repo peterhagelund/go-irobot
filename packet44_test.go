@@ -28,25 +28,25 @@ func TestExtract44(t *testing.T) {
 	data[0] = 0x00
 	data[1] = 0x00
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.LeftEncoderCounts != 0 {
-		t.Errorf("LeftEncoderCounts has wrong value")
+		t.Fatal("LeftEncoderCounts has wrong value")
 	}
 	data[0] = 0x12
 	data[1] = 0x34
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.LeftEncoderCounts != 4660 {
-		t.Errorf("LeftEncoderCounts has wrong value")
+		t.Fatal("LeftEncoderCounts has wrong value")
 	}
 	data[0] = 0xff
 	data[1] = 0xff
 	if err := packet.Extract(data, 0); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if packet.LeftEncoderCounts != 65535 {
-		t.Errorf("LeftEncoderCounts has wrong value")
+		t.Fatal("LeftEncoderCounts has wrong value")
 	}
 }

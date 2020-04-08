@@ -39,38 +39,38 @@ func TestExtract5(t *testing.T) {
 	data[11] = 0x0c // -
 	err := packet.Extract(data, 0)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	// Validate Packet35
 	if packet.Packet35.Mode != ModeSafe {
-		t.Errorf("Mode has wrong value")
+		t.Fatalf("Mode has wrong value")
 	}
 	// Validate Packet36
 	if packet.Packet36.Song != 4 {
-		t.Errorf("Song has wrong value")
+		t.Fatalf("Song has wrong value")
 	}
 	// Validate Packet37
 	if packet.Packet37.SongPlaying != true {
-		t.Errorf("SongPlaying has wrong value")
+		t.Fatalf("SongPlaying has wrong value")
 	}
 	// Validate Packet38
 	if packet.Packet38.StreamPacketCount != 42 {
-		t.Errorf("StreamPacketCount has wrong value")
+		t.Fatalf("StreamPacketCount has wrong value")
 	}
 	// Validate Packet39
 	if packet.Packet39.RequestedVelocity != -500 {
-		t.Errorf("RequestedVelocity has wrong value")
+		t.Fatalf("RequestedVelocity has wrong value")
 	}
 	// Validate Packet40
 	if packet.Packet40.RequestedRadius != -2000 {
-		t.Errorf("RequestedRadius has wrong value")
+		t.Fatalf("RequestedRadius has wrong value")
 	}
 	// Validate Packet41
 	if packet.Packet41.RequestedRightVelocity != 500 {
-		t.Errorf("RequestedRightVelocity has wrong value")
+		t.Fatalf("RequestedRightVelocity has wrong value")
 	}
 	// Validate Packet42
 	if packet.Packet42.RequestedLeftVelocity != -500 {
-		t.Errorf("RequestedLeftVelocity has wrong value")
+		t.Fatalf("RequestedLeftVelocity has wrong value")
 	}
 }
