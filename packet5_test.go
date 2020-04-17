@@ -24,19 +24,20 @@ import "testing"
 
 func TestExtract5(t *testing.T) {
 	packet := makePacket5().(*Packet5)
-	data := make([]byte, 12)
-	data[0] = 2     // Packet35
-	data[1] = 4     // Packet36
-	data[2] = 1     // Packet37
-	data[3] = 42    // Packet38
-	data[4] = 0xfe  // Packet39
-	data[5] = 0x0c  // -
-	data[6] = 0xf8  // Packet40
-	data[7] = 0x30  // -
-	data[8] = 0x01  // Packet41
-	data[9] = 0xf4  // -
-	data[10] = 0xfe // Packet42
-	data[11] = 0x0c // -
+	data := []byte{
+		2,    // Packet35
+		4,    // Packet36
+		1,    // Packet37
+		42,   // Packet38
+		0xfe, // Packet39
+		0x0c, // -
+		0xf8, // Packet40
+		0x30, // -
+		0x01, // Packet41
+		0xf4, // -
+		0xfe, // Packet42
+		0x0c, // -
+	}
 	err := packet.Extract(data, 0)
 	if err != nil {
 		t.Fatal(err)

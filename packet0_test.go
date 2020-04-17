@@ -24,33 +24,34 @@ import "testing"
 
 func TestExtract0(t *testing.T) {
 	packet := makePacket0().(*Packet0)
-	data := make([]byte, 26)
-	data[0] = 0b00000010  // Packet7
-	data[1] = 0x01        // Packet8
-	data[2] = 0x01        // Packet9
-	data[3] = 0x01        // Packet10
-	data[4] = 0x00        // Packet11
-	data[5] = 0x00        // Packet12
-	data[6] = 0x01        // Packet13
-	data[7] = 0b00011000  // Packet14
-	data[8] = 42          // Packet15
-	data[9] = 0x00        // Packet16
-	data[10] = 0x40       // Packet17
-	data[11] = 0b00000100 // Packet18
-	data[12] = 0x30       // Packet19
-	data[13] = 0x39       // -
-	data[14] = 0xfc       // Packet20
-	data[15] = 0x19       // -
-	data[16] = 0x03       // Packet21
-	data[17] = 0x40       // Packet22
-	data[18] = 0x9f       // -
-	data[19] = 0xfb       // Packet23
-	data[20] = 0x2e       // -
-	data[21] = 19         // Packet24
-	data[22] = 0x13       // Packet25
-	data[23] = 0x88       // -
-	data[24] = 0x27       // Packet26
-	data[25] = 0x10       // -
+	data := []byte{
+		0b00000010, // Packet7
+		0x01,       // Packet8
+		0x01,       // Packet9
+		0x01,       // Packet10
+		0x00,       // Packet11
+		0x00,       // Packet12
+		0x01,       // Packet13
+		0b00011000, // Packet14
+		42,         // Packet15
+		0x00,       // Packet16
+		0x40,       // Packet17
+		0b00000100, // Packet18
+		0x30,       // Packet19
+		0x39,       // -
+		0xfc,       // Packet20
+		0x19,       // -
+		0x03,       // Packet21
+		0x40,       // Packet22
+		0x9f,       // -
+		0xfb,       // Packet23
+		0x2e,       // -
+		19,         // Packet24
+		0x13,       // Packet25
+		0x88,       // -
+		0x27,       // Packet26
+		0x10,       // -
+	}
 	err := packet.Extract(data, 0)
 	if err != nil {
 		t.Fatal(err)

@@ -332,8 +332,9 @@ func (r *roomba) SetTimeout(timeout time.Duration) {
 }
 
 func (r *roomba) Start() error {
-	data := make([]byte, 1)
-	data[0] = byte(OpCodeStart)
+	data := []byte{
+		byte(OpCodeStart),
+	}
 	if err := r.write(data, ProcessTimeDefault); err != nil {
 		return err
 	}
@@ -349,9 +350,10 @@ func (r *roomba) SetBaudRate(baudRate BaudRate) error {
 	if !ok {
 		return errors.New("invalid baud rate")
 	}
-	data := make([]byte, 12)
-	data[0] = byte(OpCodeBaud)
-	data[1] = byte(baudRate)
+	data := []byte{
+		byte(OpCodeBaud),
+		byte(baudRate),
+	}
 	if err := r.write(data, ProcessTimeBaudRate); err != nil {
 		return err
 	}
@@ -359,20 +361,23 @@ func (r *roomba) SetBaudRate(baudRate BaudRate) error {
 }
 
 func (r *roomba) Safe() error {
-	data := make([]byte, 1)
-	data[0] = byte(OpCodeSafe)
+	data := []byte{
+		byte(OpCodeSafe),
+	}
 	return r.write(data, ProcessTimeModeChange)
 }
 
 func (r *roomba) Full() error {
-	data := make([]byte, 1)
-	data[0] = byte(OpCodeFull)
+	data := []byte{
+		byte(OpCodeFull),
+	}
 	return r.write(data, ProcessTimeModeChange)
 }
 
 func (r *roomba) Power() error {
-	data := make([]byte, 1)
-	data[0] = byte(OpCodePower)
+	data := []byte{
+		byte(OpCodePower),
+	}
 	return r.write(data, ProcessTimeModeChange)
 }
 
@@ -392,20 +397,23 @@ func (r *roomba) SetMode(mode Mode) error {
 }
 
 func (r *roomba) Spot() error {
-	data := make([]byte, 1)
-	data[0] = byte(OpCodeSpot)
+	data := []byte{
+		byte(OpCodeSpot),
+	}
 	return r.write(data, ProcessTimeDefault)
 }
 
 func (r *roomba) Clean() error {
-	data := make([]byte, 1)
-	data[0] = byte(OpCodeClean)
+	data := []byte{
+		byte(OpCodeClean),
+	}
 	return r.write(data, ProcessTimeDefault)
 }
 
 func (r *roomba) Max() error {
-	data := make([]byte, 1)
-	data[0] = byte(OpCodeMax)
+	data := []byte{
+		byte(OpCodeMax),
+	}
 	return r.write(data, ProcessTimeDefault)
 }
 
@@ -416,16 +424,19 @@ func (r *roomba) Drive(velocity int16, radius int16) error {
 	if radius < -2000 || radius > 2000 {
 		return fmt.Errorf("invalid radius (%d)", radius)
 	}
-	data := make([]byte, 5)
-	data[0] = byte(OpCodeDrive)
-	data[1], data[2] = int16ToBytes(velocity)
-	data[3], data[4] = int16ToBytes(radius)
+	vh, vl := int16ToBytes(velocity)
+	rh, rl := int16ToBytes(radius)
+	data := []byte{
+		byte(OpCodeDrive),
+		vh,
+		vl,
+		rh,
+		rl,
+	}
 	return r.write(data, ProcessTimeDefault)
 }
 
 func (r *roomba) Motors(mainBrush MainBrush, sideBrush SideBrush, vacuum Vacuum) error {
-	data := make([]byte, 2)
-	data[0] = byte(OpCodeMotors)
 	var bits byte = 0b00000000
 	switch mainBrush {
 	case MainBrushOff:
@@ -449,13 +460,14 @@ func (r *roomba) Motors(mainBrush MainBrush, sideBrush SideBrush, vacuum Vacuum)
 	case VacuumOn:
 		bits |= 0b00000010
 	}
-	data[1] = bits
+	data := []byte{
+		byte(OpCodeMotors),
+		bits,
+	}
 	return r.write(data, ProcessTimeDefault)
 }
 
 func (r *roomba) LEDs(color uint8, intensity uint8, debris bool, spot bool, dock bool, checkRobot bool) error {
-	data := make([]byte, 4)
-	data[0] = byte(OpCodeLEDs)
 	var bits byte = 0b00000000
 	if debris {
 		bits |= 0b00000001
@@ -469,9 +481,12 @@ func (r *roomba) LEDs(color uint8, intensity uint8, debris bool, spot bool, dock
 	if checkRobot {
 		bits |= 0b00001000
 	}
-	data[1] = bits
-	data[2] = color
-	data[3] = intensity
+	data := []byte{
+		byte(OpCodeLEDs),
+		bits,
+		color,
+		intensity,
+	}
 	return r.write(data, ProcessTimeDefault)
 }
 
@@ -503,9 +518,10 @@ func (r *roomba) Play(number uint8) error {
 	if number > 4 {
 		return fmt.Errorf("invalid song number (%d)", number)
 	}
-	data := make([]byte, 2)
-	data[0] = byte(OpCodePlay)
-	data[1] = number
+	data := []byte{
+		byte(OpCodePlay),
+		number,
+	}
 	return r.write(data, ProcessTimeDefault)
 }
 
@@ -522,9 +538,10 @@ func (r *roomba) Sensors(id int) (Packet, error) {
 }
 
 func (r *roomba) UpdateSensors(packet Packet) error {
-	data := make([]byte, 2)
-	data[0] = byte(OpCodeSensors)
-	data[1] = byte(packet.ID())
+	data := []byte{
+		byte(OpCodeSensors),
+		byte(packet.ID()),
+	}
 	if err := r.write(data, ProcessTimeDefault); err != nil {
 		return err
 	}
@@ -546,11 +563,12 @@ func (r *roomba) MotorsPWM(mainBrushPWM int8, sideBrushPWM int8, vacuumPWM uint8
 	if vacuumPWM > 127 {
 		return fmt.Errorf("invalid vacuum PWM value (%d)", vacuumPWM)
 	}
-	data := make([]byte, 4)
-	data[0] = byte(OpCodeMotorsPWM)
-	data[1] = byte(mainBrushPWM)
-	data[2] = byte(sideBrushPWM)
-	data[3] = vacuumPWM
+	data := []byte{
+		byte(OpCodeMotorsPWM),
+		byte(mainBrushPWM),
+		byte(sideBrushPWM),
+		vacuumPWM,
+	}
 	return r.write(data, ProcessTimeDefault)
 }
 
@@ -561,10 +579,15 @@ func (r *roomba) DriveDirect(leftVelocity int16, rightVelocity int16) error {
 	if rightVelocity < -500 || rightVelocity > 500 {
 		return fmt.Errorf("invalid right velocity (%d)", rightVelocity)
 	}
-	data := make([]byte, 5)
-	data[0] = byte(OpCodeDriveDirect)
-	data[1], data[2] = int16ToBytes(rightVelocity)
-	data[3], data[4] = int16ToBytes(leftVelocity)
+	rvh, rvl := int16ToBytes(rightVelocity)
+	lvh, lvl := int16ToBytes(leftVelocity)
+	data := []byte{
+		byte(OpCodeDriveDirect),
+		rvh,
+		rvl,
+		lvh,
+		lvl,
+	}
 	return r.write(data, ProcessTimeDefault)
 }
 
@@ -575,10 +598,15 @@ func (r *roomba) DrivePWM(leftWheelPWM int16, rightWheelPWM int16) error {
 	if rightWheelPWM < -255 || rightWheelPWM > 255 {
 		return fmt.Errorf("invalid right wheel PWM value (%d)", rightWheelPWM)
 	}
-	data := make([]byte, 5)
-	data[0] = byte(OpCodeDrivePWM)
-	data[1], data[2] = int16ToBytes(rightWheelPWM)
-	data[3], data[4] = int16ToBytes(leftWheelPWM)
+	rwh, rwl := int16ToBytes(rightWheelPWM)
+	lwh, lwl := int16ToBytes(leftWheelPWM)
+	data := []byte{
+		byte(OpCodeDrivePWM),
+		rwh,
+		rwl,
+		lwh,
+		lwl,
+	}
 	return r.write(data, ProcessTimeDefault)
 }
 

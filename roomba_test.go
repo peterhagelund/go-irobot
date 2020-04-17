@@ -511,13 +511,14 @@ func TestSensorsGroup(t *testing.T) {
 	roomba, _ := NewRoomba(conn)
 	c := make(chan int)
 	go func() {
-		data := make([]byte, 6)
-		data[0] = 0x40       // Packet17
-		data[1] = 0b00000100 // Packet18
-		data[2] = 0x30       // Packet19
-		data[3] = 0x39       // -
-		data[4] = 0xfc       // Packet20
-		data[5] = 0x19       // -
+		data := []byte{
+			0x40,       // Packet17
+			0b00000100, // Packet18
+			0x30,       // Packet19
+			0x39,       // -
+			0xfc,       // Packet20
+			0x19,       // -
+		}
 		if _, err := dummy.Write(data); err != nil {
 			t.Error(err)
 		}

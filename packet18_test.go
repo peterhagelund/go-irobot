@@ -24,8 +24,9 @@ import "testing"
 
 func TestExtract18(t *testing.T) {
 	packet := makePacket18().(*Packet18)
-	data := make([]byte, 1)
-	data[0] = 0b00000000
+	data := []byte{
+		0b00000000,
+	}
 	if err := packet.Extract(data, 0); err != nil {
 		t.Fatal(err)
 	}

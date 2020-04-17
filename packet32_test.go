@@ -24,8 +24,9 @@ import "testing"
 
 func TestExtract32(t *testing.T) {
 	packet := makePacket32().(*Packet32)
-	data := make([]byte, 1)
-	data[0] = 0
+	data := []byte{
+		0,
+	}
 	if err := packet.Extract(data, 0); err != nil {
 		t.Fatal(err)
 	}
