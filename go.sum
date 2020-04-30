@@ -1,4 +1,4 @@
-github.com/peterhagelund/go-serial v0.4.0 h1:7e4V0ZrKCdwnf+ZBowmC/8Cxu3un/4aV+Cj5QG7vAxc=
-github.com/peterhagelund/go-serial v0.4.0/go.mod h1:WQ8oZb70exHggpRaaFOv9eRIN0e/YJThgkBTK1u+HYo=
-golang.org/x/sys v0.0.0-20200408040146-ea54a3c99b9b h1:h03Ur1RlPrGTjua4koYdpGl8W0eYo8p1uI9w7RPlkdk=
-golang.org/x/sys v0.0.0-20200408040146-ea54a3c99b9b/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+github.com/peterhagelund/go-serial v0.4.1 h1:rOt91750Y4M3Htd8qZi0zOaJ74XHtG7XJs9vWcQh2Pc=
+github.com/peterhagelund/go-serial v0.4.1/go.mod h1:tVXOF6ywOflJBaFFjv/XlwkGRRLt0vMZrvU9Wj7yWvM=
+golang.org/x/sys v0.0.0-20200430082407-1f5687305801 h1:Jp2/1+ZY++XrlALjnberpN8QkAUPNLkIjQIMInPpQxc=
+golang.org/x/sys v0.0.0-20200430082407-1f5687305801/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
