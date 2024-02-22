@@ -23,10 +23,10 @@ package irobot
 import (
 	"errors"
 	"fmt"
-	"net"
+	"io"
 	"time"
 
-	"github.com/peterhagelund/go-serial"
+	"go.bug.st/serial"
 )
 
 // OpCode is the OI command op-code type.
@@ -226,10 +226,6 @@ type Note struct {
 
 // Roomba defines the required behavior of an iRobot Roomba vacuum cleaner OI.
 type Roomba interface {
-	// Timeout returns the time out for read/write operations.
-	Timeout() time.Duration
-	// SetTimeout sets the timeout for read/write operations.
-	SetTimeout(timeout time.Duration)
 	// Start starts the OI.
 	Start() error
 	// SetBaudRate sets the baud rate of the OI.
@@ -271,25 +267,7 @@ type Roomba interface {
 }
 
 type roomba struct {
-	conn      net.Conn
-	timeout   time.Duration
-	lastWrite time.Time
-	lastRead  time.Time
-}
-
-var baudRateMap = map[BaudRate]serial.BaudRate{
-	BaudRate300:    serial.BaudRate300,
-	BaudRate600:    serial.BaudRate600,
-	BaudRate1200:   serial.BaudRate1200,
-	BaudRate2400:   serial.BaudRate2400,
-	BaudRate4800:   serial.BaudRate4800,
-	BaudRate9600:   serial.BaudRate9600,
-	BaudRate14400:  serial.BaudRate14400,
-	BaudRate19200:  serial.BaudRate19200,
-	BaudRate28800:  serial.BaudRate28800,
-	BaudRate38400:  serial.BaudRate38400,
-	BaudRate57600:  serial.BaudRate57600,
-	BaudRate115200: serial.BaudRate115200,
+	port io.ReadWriteCloser
 }
 
 // NewNote creates and returns a new Note with the specified number and duration.
@@ -308,47 +286,29 @@ func NewNote(number uint8, duration time.Duration) (*Note, error) {
 }
 
 // NewRoomba creates and returns a new Roomba instance for the specified connection.
-func NewRoomba(conn net.Conn) (Roomba, error) {
-	if conn == nil {
-		return nil, errors.New("nil connection supplied")
+func NewRoomba(port io.ReadWriteCloser) (Roomba, error) {
+	if port == nil {
+		return nil, errors.New("nil port supplied")
 	}
 	return &roomba{
-		conn:      conn,
-		timeout:   time.Duration(0),
-		lastWrite: time.Now(),
-		lastRead:  time.Now(),
+		port: port,
 	}, nil
-}
-
-func (r *roomba) Timeout() time.Duration {
-	return r.timeout
-}
-
-func (r *roomba) SetTimeout(timeout time.Duration) {
-	r.timeout = timeout
-	if timeout == 0 {
-		r.conn.SetDeadline(time.Time{})
-	}
 }
 
 func (r *roomba) Start() error {
 	data := []byte{
 		byte(OpCodeStart),
 	}
-	if err := r.write(data, ProcessTimeDefault); err != nil {
+	if err := r.write(data, ProcessTimeModeChange); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (r *roomba) SetBaudRate(baudRate BaudRate) error {
-	conn, ok := r.conn.(serial.PortConn)
+	_, ok := r.port.(serial.Port)
 	if !ok {
-		return errors.New("connection not serial")
-	}
-	b, ok := baudRateMap[baudRate]
-	if !ok {
-		return errors.New("invalid baud rate")
+		return errors.New("port not serial")
 	}
 	data := []byte{
 		byte(OpCodeBaud),
@@ -357,7 +317,7 @@ func (r *roomba) SetBaudRate(baudRate BaudRate) error {
 	if err := r.write(data, ProcessTimeBaudRate); err != nil {
 		return err
 	}
-	return conn.Port().SetBaudRate(b)
+	return nil
 }
 
 func (r *roomba) Safe() error {
@@ -546,7 +506,6 @@ func (r *roomba) UpdateSensors(packet Packet) error {
 		return err
 	}
 	data = make([]byte, packet.Size())
-	r.lastRead = r.lastWrite
 	if err := r.read(data); err != nil {
 		return err
 	}
@@ -611,18 +570,10 @@ func (r *roomba) DrivePWM(leftWheelPWM int16, rightWheelPWM int16) error {
 }
 
 func (r *roomba) read(data []byte) error {
-	duration := time.Now().Sub(r.lastRead)
-	if duration < 50*time.Millisecond {
-		time.Sleep(duration)
-	}
-	if r.timeout > 0 {
-		r.conn.SetReadDeadline(time.Now().Add(r.timeout))
-	}
-	n, err := r.conn.Read(data)
+	n, err := r.port.Read(data)
 	if err != nil {
 		return err
 	}
-	r.lastRead = time.Now()
 	if n < len(data) {
 		return fmt.Errorf("incomplete read (%d)", n)
 	}
@@ -630,19 +581,11 @@ func (r *roomba) read(data []byte) error {
 }
 
 func (r *roomba) write(data []byte, processTime time.Duration) error {
-	duration := time.Now().Sub(r.lastWrite)
-	if duration < 50*time.Millisecond {
-		time.Sleep(duration)
-	}
-	if r.timeout > 0 {
-		r.conn.SetWriteDeadline(time.Now().Add(r.timeout))
-	}
-	n, err := r.conn.Write(data)
+	n, err := r.port.Write(data)
 	if err != nil {
 		return err
 	}
 	time.Sleep(processTime)
-	r.lastWrite = time.Now()
 	if n < len(data) {
 		return fmt.Errorf("incomplete write (%d)", n)
 	}

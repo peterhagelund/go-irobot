@@ -4,7 +4,7 @@ Library for controlling [iRobot](https://www.irobot.com) Roomba robots.
 
 ## Copyright and License
 
-Copyright (c) 2020 Peter Hagelund
+Copyright (c) 2020-2024 Peter Hagelund
 
 This software is licensed under the [MIT License](https://en.wikipedia.org/wiki/MIT_License)
 
