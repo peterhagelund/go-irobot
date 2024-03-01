@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Peter Hagelund
+// Copyright (c) 2020-2024 Peter Hagelund
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@ package irobot
 import "testing"
 
 func TestExtract8(t *testing.T) {
-	packet := makePacket8().(*Packet8)
+	packet := newPacket8().(*Packet8)
 	data := []byte{
 		0b00000000,
 	}

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Peter Hagelund
+// Copyright (c) 2020-2024 Peter Hagelund
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sync"
 	"time"
 
 	"go.bug.st/serial"
@@ -63,7 +64,7 @@ const (
 	OpCodePlay
 	// OpCodeSensors requests a sensor packet.
 	OpCodeSensors
-	// OpCodeSeekDock instructs the Roomba tp seek its dock.
+	// OpCodeSeekDock instructs the Roomba to seek its dock.
 	OpCodeSeekDock
 	// OpCodeMotorsPWM controls the brush and vacuum motors using pulse width modulation (PWM).
 	OpCodeMotorsPWM
@@ -109,11 +110,11 @@ const (
 
 const (
 	// ProcessTimeDefault is the default processing time for most op-codes.
-	ProcessTimeDefault time.Duration = 50 * time.Millisecond
+	ProcessTimeStart time.Duration = 500 * time.Millisecond
 	// ProcessTimeBaudRate is th processing time for changing baud rate.
-	ProcessTimeBaudRate = 100 * time.Millisecond
+	ProcessTimeModeChange = 50 * time.Millisecond
 	// ProcessTimeModeChange is the processing time for the op-codes that change mode.
-	ProcessTimeModeChange = 750 * time.Millisecond
+	ProcessTimeCommand = 25 * time.Millisecond
 )
 
 // BaudRate is the OI baud rate type.
@@ -226,10 +227,13 @@ type Note struct {
 
 // Roomba defines the required behavior of an iRobot Roomba vacuum cleaner OI.
 type Roomba interface {
+	io.ReadWriteCloser
 	// Start starts the OI.
 	Start() error
 	// SetBaudRate sets the baud rate of the OI.
 	SetBaudRate(baudRate BaudRate) error
+	// Control enables control.
+	Control() error
 	// Safe puts the OI in safe mode.
 	Safe() error
 	// Full puts the OI in full mode.
@@ -258,16 +262,27 @@ type Roomba interface {
 	Sensors(id int) (Packet, error)
 	// UpdateSensors requests an update for the specified sensor packet.
 	UpdateSensors(packet Packet) error
+	// SeekDock instructs the Roomba to seek its dock.
+	SeekDock() error
 	// MotorsPWM controls the brush and vacuum motors directlyt using Pulse Width Modulation (PWM).
 	MotorsPWM(mainBrushPWM int8, sideBrushPWM int8, vacuumPWM uint8) error
 	// DriveDirect controls the drive wheels directly by setting a velocity for each.
 	DriveDirect(leftVelocity int16, rightVelocity int16) error
 	// DrivePWM controls the drive wheels directly using Pulse Width Modulation (PWM).
 	DrivePWM(leftWheelPWM int16, rightWheelPWM int16) error
+	// Stream instructs the Roomba to stream sensor packets every 15 ms.
+	Stream(ids ...int) (int, error)
+	// QueryList requests a list of sensor packets from the Roomba.
+	QueryList(ids ...int) ([]Packet, error)
+	// UpdateList updates the list of sensor packets.
+	UpdateList(packets []Packet) error
+	// PauseResumeStream pauses or resumes the stream of sensor packets.
+	PauseResumeStream() error
 }
 
 type roomba struct {
-	port io.ReadWriteCloser
+	port  io.ReadWriteCloser
+	mutex sync.Mutex
 }
 
 // NewNote creates and returns a new Note with the specified number and duration.
@@ -296,10 +311,10 @@ func NewRoomba(port io.ReadWriteCloser) (Roomba, error) {
 }
 
 func (r *roomba) Start() error {
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodeStart),
 	}
-	if err := r.write(data, ProcessTimeModeChange); err != nil {
+	if err := r.writeAndRead(writeData, ProcessTimeStart, nil); err != nil {
 		return err
 	}
 	return nil
@@ -310,35 +325,42 @@ func (r *roomba) SetBaudRate(baudRate BaudRate) error {
 	if !ok {
 		return errors.New("port not serial")
 	}
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodeBaud),
 		byte(baudRate),
 	}
-	if err := r.write(data, ProcessTimeBaudRate); err != nil {
+	if err := r.writeAndRead(writeData, ProcessTimeCommand, nil); err != nil {
 		return err
 	}
 	return nil
 }
 
+func (r *roomba) Control() error {
+	writeData := []byte{
+		byte(OpCodeControl),
+	}
+	return r.writeAndRead(writeData, ProcessTimeModeChange, nil)
+}
+
 func (r *roomba) Safe() error {
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodeSafe),
 	}
-	return r.write(data, ProcessTimeModeChange)
+	return r.writeAndRead(writeData, ProcessTimeModeChange, nil)
 }
 
 func (r *roomba) Full() error {
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodeFull),
 	}
-	return r.write(data, ProcessTimeModeChange)
+	return r.writeAndRead(writeData, ProcessTimeModeChange, nil)
 }
 
 func (r *roomba) Power() error {
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodePower),
 	}
-	return r.write(data, ProcessTimeModeChange)
+	return r.writeAndRead(writeData, ProcessTimeModeChange, nil)
 }
 
 func (r *roomba) SetMode(mode Mode) error {
@@ -357,24 +379,24 @@ func (r *roomba) SetMode(mode Mode) error {
 }
 
 func (r *roomba) Spot() error {
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodeSpot),
 	}
-	return r.write(data, ProcessTimeDefault)
+	return r.writeAndRead(writeData, ProcessTimeCommand, nil)
 }
 
 func (r *roomba) Clean() error {
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodeClean),
 	}
-	return r.write(data, ProcessTimeDefault)
+	return r.writeAndRead(writeData, ProcessTimeCommand, nil)
 }
 
 func (r *roomba) Max() error {
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodeMax),
 	}
-	return r.write(data, ProcessTimeDefault)
+	return r.writeAndRead(writeData, ProcessTimeCommand, nil)
 }
 
 func (r *roomba) Drive(velocity int16, radius int16) error {
@@ -386,14 +408,14 @@ func (r *roomba) Drive(velocity int16, radius int16) error {
 	}
 	vh, vl := int16ToBytes(velocity)
 	rh, rl := int16ToBytes(radius)
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodeDrive),
 		vh,
 		vl,
 		rh,
 		rl,
 	}
-	return r.write(data, ProcessTimeDefault)
+	return r.writeAndRead(writeData, ProcessTimeCommand, nil)
 }
 
 func (r *roomba) Motors(mainBrush MainBrush, sideBrush SideBrush, vacuum Vacuum) error {
@@ -420,11 +442,11 @@ func (r *roomba) Motors(mainBrush MainBrush, sideBrush SideBrush, vacuum Vacuum)
 	case VacuumOn:
 		bits |= 0b00000010
 	}
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodeMotors),
 		bits,
 	}
-	return r.write(data, ProcessTimeDefault)
+	return r.writeAndRead(writeData, ProcessTimeCommand, nil)
 }
 
 func (r *roomba) LEDs(color uint8, intensity uint8, debris bool, spot bool, dock bool, checkRobot bool) error {
@@ -441,13 +463,13 @@ func (r *roomba) LEDs(color uint8, intensity uint8, debris bool, spot bool, dock
 	if checkRobot {
 		bits |= 0b00001000
 	}
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodeLEDs),
 		bits,
 		color,
 		intensity,
 	}
-	return r.write(data, ProcessTimeDefault)
+	return r.writeAndRead(writeData, ProcessTimeCommand, nil)
 }
 
 func (r *roomba) SetSong(number uint8, notes []*Note) error {
@@ -463,30 +485,30 @@ func (r *roomba) SetSong(number uint8, notes []*Note) error {
 			return fmt.Errorf("note at index %d has invalid number", i)
 		}
 	}
-	data := make([]byte, 3+2*noteCount)
-	data[0] = byte(OpCodeSong)
-	data[1] = number
-	data[2] = byte(len(notes))
+	writeData := make([]byte, 3+2*noteCount)
+	writeData[0] = byte(OpCodeSong)
+	writeData[1] = number
+	writeData[2] = byte(len(notes))
 	for i, note := range notes {
-		data[3+i*2+0] = note.Number
-		data[3+i*2+1] = note.Duration
+		writeData[3+i*2+0] = note.Number
+		writeData[3+i*2+1] = note.Duration
 	}
-	return r.write(data, ProcessTimeDefault)
+	return r.writeAndRead(writeData, ProcessTimeCommand, nil)
 }
 
 func (r *roomba) Play(number uint8) error {
 	if number > 4 {
 		return fmt.Errorf("invalid song number (%d)", number)
 	}
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodePlay),
 		number,
 	}
-	return r.write(data, ProcessTimeDefault)
+	return r.writeAndRead(writeData, ProcessTimeCommand, nil)
 }
 
 func (r *roomba) Sensors(id int) (Packet, error) {
-	packet, err := NewPacket(id)
+	packet, err := NewPacketWithID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -498,18 +520,23 @@ func (r *roomba) Sensors(id int) (Packet, error) {
 }
 
 func (r *roomba) UpdateSensors(packet Packet) error {
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodeSensors),
 		byte(packet.ID()),
 	}
-	if err := r.write(data, ProcessTimeDefault); err != nil {
+	readData := make([]byte, packet.Size())
+	// TODO
+	if err := r.writeAndRead(writeData, ProcessTimeCommand, readData); err != nil {
 		return err
 	}
-	data = make([]byte, packet.Size())
-	if err := r.read(data); err != nil {
-		return err
+	return packet.Extract(readData, 0)
+}
+
+func (r *roomba) SeekDock() error {
+	writeData := []byte{
+		byte(OpCodeSeekDock),
 	}
-	return packet.Extract(data, 0)
+	return r.writeAndRead(writeData, ProcessTimeCommand, nil)
 }
 
 func (r *roomba) MotorsPWM(mainBrushPWM int8, sideBrushPWM int8, vacuumPWM uint8) error {
@@ -522,13 +549,13 @@ func (r *roomba) MotorsPWM(mainBrushPWM int8, sideBrushPWM int8, vacuumPWM uint8
 	if vacuumPWM > 127 {
 		return fmt.Errorf("invalid vacuum PWM value (%d)", vacuumPWM)
 	}
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodeMotorsPWM),
 		byte(mainBrushPWM),
 		byte(sideBrushPWM),
 		vacuumPWM,
 	}
-	return r.write(data, ProcessTimeDefault)
+	return r.writeAndRead(writeData, ProcessTimeCommand, nil)
 }
 
 func (r *roomba) DriveDirect(leftVelocity int16, rightVelocity int16) error {
@@ -540,14 +567,14 @@ func (r *roomba) DriveDirect(leftVelocity int16, rightVelocity int16) error {
 	}
 	rvh, rvl := int16ToBytes(rightVelocity)
 	lvh, lvl := int16ToBytes(leftVelocity)
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodeDriveDirect),
 		rvh,
 		rvl,
 		lvh,
 		lvl,
 	}
-	return r.write(data, ProcessTimeDefault)
+	return r.writeAndRead(writeData, ProcessTimeCommand, nil)
 }
 
 func (r *roomba) DrivePWM(leftWheelPWM int16, rightWheelPWM int16) error {
@@ -559,35 +586,131 @@ func (r *roomba) DrivePWM(leftWheelPWM int16, rightWheelPWM int16) error {
 	}
 	rwh, rwl := int16ToBytes(rightWheelPWM)
 	lwh, lwl := int16ToBytes(leftWheelPWM)
-	data := []byte{
+	writeData := []byte{
 		byte(OpCodeDrivePWM),
 		rwh,
 		rwl,
 		lwh,
 		lwl,
 	}
-	return r.write(data, ProcessTimeDefault)
+	return r.writeAndRead(writeData, ProcessTimeCommand, nil)
 }
 
-func (r *roomba) read(data []byte) error {
-	n, err := r.port.Read(data)
-	if err != nil {
+func (r *roomba) Stream(ids ...int) (int, error) {
+	if len(ids) > 255 {
+		return 0, errors.New("too many sensor packets requested")
+	}
+	size := 0
+	for _, id := range ids {
+		packet, err := NewPacketWithID(id)
+		if err != nil {
+			return 0, err
+		}
+		size += packet.Size()
+	}
+	writeData := make([]byte, 2+len(ids))
+	writeData[0] = byte(OpCodeStream)
+	writeData[1] = byte(len(ids))
+	for i, id := range ids {
+		writeData[2+i] = byte(id)
+	}
+	if err := r.writeAndRead(writeData, ProcessTimeCommand, nil); err != nil {
+		return 0, err
+	}
+	return size, nil
+}
+
+func (r *roomba) QueryList(ids ...int) ([]Packet, error) {
+	packets := make([]Packet, 0)
+	for _, id := range ids {
+		packet, err := NewPacketWithID(id)
+		if err != nil {
+			return nil, err
+		}
+		packets = append(packets, packet)
+	}
+	if err := r.UpdateList(packets); err != nil {
+		return nil, err
+	}
+	return packets, nil
+}
+
+func (r *roomba) UpdateList(packets []Packet) error {
+	if len(packets) > 255 {
+		return errors.New("too many sensor packets requested")
+	}
+	size := 0
+	writeData := make([]byte, 2+len(packets))
+	writeData[0] = byte(OpCodeQueryList)
+	writeData[1] = byte(len(packets))
+	for i, packet := range packets {
+		writeData[2+i] = byte(packet.ID())
+		size += packet.Size()
+	}
+	readData := make([]byte, size)
+	if err := r.writeAndRead(writeData, ProcessTimeCommand, readData); err != nil {
 		return err
 	}
-	if n < len(data) {
-		return fmt.Errorf("incomplete read (%d)", n)
+	offset := 0
+	for _, packet := range packets {
+		if err := packet.Extract(readData, offset); err != nil {
+			return err
+		}
+		offset += packet.Size()
 	}
 	return nil
 }
 
-func (r *roomba) write(data []byte, processTime time.Duration) error {
+func (r *roomba) PauseResumeStream() error {
+	writeData := []byte{
+		byte(OpCodePauseResumeStream),
+	}
+	return r.writeAndRead(writeData, ProcessTimeCommand, nil)
+}
+
+func (r *roomba) Read(data []byte) (int, error) {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+	n, err := r.port.Read(data)
+	if err != nil {
+		return 0, err
+	}
+	if n < len(data) {
+		return 0, fmt.Errorf("incomplete read (%d)", n)
+	}
+	return n, nil
+}
+
+func (r *roomba) Write(data []byte) (int, error) {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
 	n, err := r.port.Write(data)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	time.Sleep(processTime)
 	if n < len(data) {
-		return fmt.Errorf("incomplete write (%d)", n)
+		return 0, fmt.Errorf("incomplete write (%d)", n)
+	}
+	return n, nil
+}
+
+func (r *roomba) Close() error {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+	return r.port.Close()
+}
+
+func (r *roomba) writeAndRead(writeData []byte, processTime time.Duration, readData []byte) error {
+	if writeData != nil {
+		if _, err := r.Write(writeData); err != nil {
+			return err
+		}
+		time.Sleep(processTime)
+	}
+	if readData != nil {
+		if _, err := r.Read(readData); err != nil {
+			return err
+		}
 	}
 	return nil
 }

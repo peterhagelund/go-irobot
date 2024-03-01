@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Peter Hagelund
+// Copyright (c) 2020-2024 Peter Hagelund
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -48,7 +48,7 @@ func (packet *Packet2) Extract(data []byte, offset int) error {
 	return extractGroupPacket(packet, data, offset)
 }
 
-func makePacket2() Packet {
+func newPacket2() Packet {
 	return &Packet2{
 		Packet17: &Packet17{},
 		Packet18: &Packet18{},

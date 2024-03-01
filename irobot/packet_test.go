@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Peter Hagelund
+// Copyright (c) 2020-2024 Peter Hagelund
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +21,7 @@
 package irobot
 
 import (
-	"fmt"
-	"reflect"
+	"strconv"
 	"testing"
 )
 
@@ -69,8 +68,21 @@ var packetSizes = map[int]int{
 }
 
 func TestNewPacket(t *testing.T) {
-	for id := range packetFacory {
-		packet, err := NewPacket(id)
+	packet0, err := NewPacket[*Packet0]()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if packet0.ID() != 0 {
+		t.Fatalf("expected packet %T to have id %d, got %d", packet0, 0, packet0.ID())
+	}
+}
+func TestNewPacketAll(t *testing.T) {
+	for typeName := range packetFacory {
+		id, err := strconv.Atoi(typeName[14:])
+		if err != nil {
+			t.Fatal(err)
+		}
+		packet, err := NewPacketWithID(id)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -83,11 +95,6 @@ func TestNewPacket(t *testing.T) {
 		}
 		if packet.Size() != size {
 			t.Fatalf("expected packet %T to have size %d, got %d", packet, size, packet.Size())
-		}
-		expected := fmt.Sprintf("*irobot.Packet%d", id)
-		actual := reflect.TypeOf(packet).String()
-		if actual != expected {
-			t.Fatalf("expected packet %T to have name '%s', got '%s'", packet, expected, actual)
 		}
 	}
 }
