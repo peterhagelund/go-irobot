@@ -15,9 +15,12 @@ and that there is no warranty of any kind. If you choose to utilize this softwar
 device in the real world, you run the risk of damaging the vaccum cleaner and/or your dwelling and/or any furniture or other
 belongings you may keep there and/or any carbon-based lifeforms that might inhabit your space. This is **especially** true if you
 choose to place the `Roomba` OI in `full` mode - in which case all of the failsafes the talented iRobot engineers have put in place
-are *completely disabled*. In `full` mode you run the risk of not catching an overcurrent condition in the motors, having the vacuum
-cleaner fall down a staircase, and possibly hit and ingest your pet(s) or a child. Read the [OI specification](https://www.irobot.lv/uploaded_files/File/iRobot_Roomba_500_Open_Interface_Spec.pdf)
+are **completely disabled**. In `full` mode you run the risk of not catching an overcurrent condition in the motors, having the vacuum
+cleaner fall down a staircase, and possibly hit and ingest your pet(s) or a child. Read the [OI specification](https://edu.irobot.com/learning-library/create-2-oi-spec)
 very carefully and _test your software to destruction_ **before** letting this thing loose in your house. _Ye be warned!_
+
+_Please note:_ I have switched the serial support to [go.bug.st/serial](https://github.com/bugst/go-serial)
+as it is much more full-fledged and complete than what I had put together a while back.
 
 _Please note:_ I am in no way affiliated with iRobot or any of its subsidiaries or suppliers. I have used their products for several
 years (my first one was a _Roomba Red_) and have written libraries similar to this one in Java, C, C++, Python, Swift, and likely other languages simply because I enjoy doing so.
@@ -29,6 +32,8 @@ go get -u github.com/peterhagelund/go-irobot
 ```
 
 ## Using
+
+### Querying Sensors
 ```go
 package main
 
@@ -86,6 +91,66 @@ func main() {
 	}
 	roomba.Power()
 	fmt.Println("Done.")
+}
+```
+
+### Driving
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/peterhagelund/go-irobot/irobot"
+	"go.bug.st/serial"
+)
+
+func main() {
+	mode := &serial.Mode{
+		BaudRate: 115200,
+		Parity:   serial.NoParity,
+		DataBits: 8,
+		StopBits: serial.OneStopBit,
+	}
+	port, err := serial.Open("/dev/ttyUSB0", mode)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Connected.")
+	port.SetReadTimeout(time.Second * 1)
+	roomba, err := irobot.NewRoomba(port)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer roomba.Close()
+	if err = roomba.Start(); err != nil {
+		log.Fatal(err)
+	}
+	defer roomba.Power()
+	// Put the Roomba in safe mode so it can be driven (safely).
+	if err = roomba.Safe(); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Started.")
+	defer roomba.DriveDirect(0, 0) // If things go south, at least try to stop the beast.
+	// Go forward at 250 mm/s; then stop; then backwards at -250 mm/s; then stop.
+	velocities := [][2]int16{{250, 250}, {0, 0}, {-250, -250}, {0, 0}}
+	for i := range velocities {
+		leftVelocity := velocities[i][0]
+		rightVelocity := velocities[i][1]
+		fmt.Printf("Driving %d, %d\n", leftVelocity, rightVelocity)
+		if err := roomba.DriveDirect(leftVelocity, rightVelocity); err != nil {
+			fmt.Println(err)
+			break
+		}
+		if leftVelocity != 0 || rightVelocity != 0 {
+			time.Sleep(time.Second * 3)
+		} else {
+			time.Sleep(time.Millisecond * 500)
+		}
+	}
 }
 ```
 

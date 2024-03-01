@@ -50,29 +50,27 @@ func main() {
 	if err = roomba.Start(); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Started.")
 	defer roomba.Power()
-	packet22, _ := irobot.NewPacket[*irobot.Packet22]()
-	packet23, _ := irobot.NewPacket[*irobot.Packet23]()
-	packet24, _ := irobot.NewPacket[*irobot.Packet24]()
-	packet25, _ := irobot.NewPacket[*irobot.Packet25]()
-	packet26, _ := irobot.NewPacket[*irobot.Packet26]()
-	packets := []irobot.Packet{packet22, packet23, packet24, packet25, packet26}
-	for i := range 5 {
-		fmt.Println("Querying power information...")
-		err := roomba.UpdateList(packets)
-		if err != nil {
-			fmt.Printf("Error updating packets: %v\n", err)
-		} else {
-			fmt.Printf("Voltage %d .......: %d\n", i, packet22.Voltage)
-			fmt.Printf("Current %d .......: %d\n", i, packet23.Current)
-			fmt.Printf("Temperature %d ...: %d\n", i, packet24.Temperature)
-			fmt.Printf("Charge %d ........: %d\n", i, packet25.BatteryCharge)
-			fmt.Printf("Capacity %d ......: %d\n", i, packet26.BatteryCapacity)
-		}
-		fmt.Println("Sleeping...")
-		time.Sleep(time.Second * 1)
+	// Put the Roomba in safe mode so it can be driven (safely).
+	if err = roomba.Safe(); err != nil {
+		log.Fatal(err)
 	}
-
-	fmt.Println("Done.")
+	fmt.Println("Started.")
+	defer roomba.DriveDirect(0, 0) // If things go south, at least try to stop the beast.
+	// Go forward at 250 mm/s; then stop; then backwards at -250 mm/s; then stop.
+	velocities := [][2]int16{{250, 250}, {0, 0}, {-250, -250}, {0, 0}}
+	for i := range velocities {
+		leftVelocity := velocities[i][0]
+		rightVelocity := velocities[i][1]
+		fmt.Printf("Driving %d, %d\n", leftVelocity, rightVelocity)
+		if err := roomba.DriveDirect(leftVelocity, rightVelocity); err != nil {
+			fmt.Println(err)
+			break
+		}
+		if leftVelocity != 0 || rightVelocity != 0 {
+			time.Sleep(time.Second * 3)
+		} else {
+			time.Sleep(time.Millisecond * 500)
+		}
+	}
 }
