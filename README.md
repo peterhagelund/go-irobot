@@ -33,21 +33,59 @@ go get -u github.com/peterhagelund/go-irobot
 package main
 
 import (
-    "github.com/peterhagelund/go-irobot"
-    "github.com/peterhagelund/go-serial"
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/peterhagelund/go-irobot/irobot"
+	"go.bug.st/serial"
 )
 
 func main() {
-	conn, err := serial.Dial("/dev/tty.usbserial-AC01A7BB", serial.BaudRate115200, serial.ParityNone, serial.DataBits8, serial.StopBits1)
-	if err != nil {
-		panic(err)
+	mode := &serial.Mode{
+		BaudRate: 115200,
+		Parity:   serial.NoParity,
+		DataBits: 8,
+		StopBits: serial.OneStopBit,
 	}
-	defer conn.Close()
-	roomba, err := irobot.NewRoomba(conn)
+	port, err := serial.Open("/dev/ttyUSB0", mode)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-	// TODO - more example code.
+	fmt.Println("Connected.")
+	port.SetReadTimeout(time.Second * 1)
+	roomba, err := irobot.NewRoomba(port)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer roomba.Close()
+	if err = roomba.Start(); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Started.")
+	packet22, _ := irobot.NewPacket[*irobot.Packet22]()
+	packet23, _ := irobot.NewPacket[*irobot.Packet23]()
+	packet24, _ := irobot.NewPacket[*irobot.Packet24]()
+	packet25, _ := irobot.NewPacket[*irobot.Packet25]()
+	packet26, _ := irobot.NewPacket[*irobot.Packet26]()
+	packets := []irobot.Packet{packet22, packet23, packet24, packet25, packet26}
+	for i := range 5 {
+		fmt.Println("Querying power information...")
+		err := roomba.UpdateList(packets)
+		if err != nil {
+			fmt.Printf("Error updating packets: %v\n", err)
+		} else {
+			fmt.Printf("Voltage %d .......: %d\n", i, packet22.Voltage)
+			fmt.Printf("Current %d .......: %d\n", i, packet23.Current)
+			fmt.Printf("Temperature %d ...: %d\n", i, packet24.Temperature)
+			fmt.Printf("Charge %d ........: %d\n", i, packet25.BatteryCharge)
+			fmt.Printf("Capacity %d ......: %d\n", i, packet26.BatteryCapacity)
+		}
+		fmt.Println("Sleeping...")
+		time.Sleep(time.Second * 1)
+	}
+	roomba.Power()
+	fmt.Println("Done.")
 }
 ```
 
